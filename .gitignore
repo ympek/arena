@@ -1,0 +1,13 @@
+# ides
+.idea
+.vscode
+
+# client stuff
+
+
+# server stuff
+server/.gradle
+server/build
+server/.settings
+server/.classpath
+server/.project

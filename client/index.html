@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ARENA</title>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+        }
+
+        canvas {
+            width: 50vw;
+            height: 50vh;
+            margin: 0 auto;
+            display: block;
+
+            border: 5px double saddlebrown;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>ARENA. MOBA</h1>
+    <div>
+        <canvas></canvas>
+    </div>
+
+    <script type="text/javascript">
+        var config = {
+            serverAddr: 'ympek.net:8020', // URI for game server,
+            offlineMode: false // just for development
+        }
+
+        var sock;
+
+        if (!config.offlineMode) {
+            establishConnection();
+        }
+
+        console.log('hello!');
+        function establishConnection() {
+            sock = new WebSocket('ws://' + config.serverAddr);
+
+            console.log(sock.readyState);
+
+            sock.onopen = function (event) {
+                console.log('socketopen');
+                sock.send('Opening!');
+
+                setInterval(function () {
+                    sock.send('ping');
+
+                }, 1000);
+            };
+
+            sock.onmessage = function (event) {
+                console.log('recv data.');
+                console.log(event.data)
+            }
+
+        }
+    </script>
+</body>
+
+</html>
