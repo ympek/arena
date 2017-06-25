@@ -72,27 +72,6 @@ public class GameServer extends WebSocketServer {
 		System.out.println( "received fragment: " + fragment );
 	}
 
-	public static void main( String[] args ) throws InterruptedException , IOException {
-		WebSocketImpl.DEBUG = true;
-		int port = 8020; // 843 flash policy port
-		try {
-			port = Integer.parseInt( args[ 0 ] );
-		} catch ( Exception ex ) {
-		}
-		GameServer s = new GameServer( port );
-		s.start();
-		System.out.println( "GameServer started on port: " + s.getPort() );
-
-		BufferedReader sysin = new BufferedReader( new InputStreamReader( System.in ) );
-		while ( true ) {
-			String in = sysin.readLine();
-			s.sendToAll( in );
-			if( in.equals( "exit" ) ) {
-				s.stop();
-				break;
-			}
-		}
-	}
 	@Override
 	public void onError( WebSocket conn, Exception ex ) {
 		ex.printStackTrace();
