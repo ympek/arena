@@ -1,0 +1,31 @@
+{
+  "name": "arena-client",
+  "version": "1.0.0",
+  "description": "In-browser MOBA-like game",
+  "main": "arena.min.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ympek/arena.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ympek/arena/issues"
+  },
+  "homepage": "https://github.com/ympek/arena#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "concat": "type js\\*.js > all.js"
+  },
+  "devDependencies": {
+    "jshint": "^2.9.5"
+  },
+  "jshintConfig": {
+      "undef": true,
+      "unused": true,
+      "strict": true,
+      "globals": {
+        "MY_GLOBAL": true
+      }
+  }
+}

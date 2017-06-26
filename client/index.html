@@ -20,49 +20,23 @@
             border: 5px double saddlebrown;
         }
 
+        #preloader {
+            text-align: center;
+        }
+
     </style>
 </head>
 
 <body>
     <h1>ARENA. MOBA</h1>
+    <p id="preloader">
+        Downloading game files...
+    </p>
     <div>
-        <canvas></canvas>
+        <canvas id="arena-canvas"></canvas>
     </div>
 
-    <script type="text/javascript">
-        var config = {
-            serverAddr: 'ympek.net:8020', // URI for game server,
-            offlineMode: false // just for development
-        }
-
-        var sock;
-
-        if (!config.offlineMode) {
-            establishConnection();
-        }
-
-        console.log('hello!');
-        function establishConnection() {
-            sock = new WebSocket('ws://' + config.serverAddr);
-
-            console.log(sock.readyState);
-
-            sock.onopen = function (event) {
-                console.log('socketopen');
-                sock.send('Opening!');
-
-                setInterval(function () {
-                    sock.send('ping');
-
-                }, 1000);
-            };
-
-            sock.onmessage = function (event) {
-                console.log('recv data.');
-                console.log(event.data)
-            }
-
-        }
+    <script src="all.js"></script>
     </script>
 </body>
 

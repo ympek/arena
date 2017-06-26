@@ -3,11 +3,13 @@
 .vscode
 
 # client stuff
-
+client/node_modules
+client/all.js
 
 # server stuff
 server/.gradle
 server/build
+server/bin
 server/.settings
 server/.classpath
 server/.project

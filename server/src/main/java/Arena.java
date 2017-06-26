@@ -12,7 +12,7 @@ public class Arena {
         //spróbuj to jakoś posprzątać, żeby było ładnie
 
         WebSocketImpl.DEBUG = true;
-        int port = 8020; // 843 flash policy port
+        int port = 8020;
         try {
             port = Integer.parseInt( args[ 0 ] );
         } catch ( Exception ex ) {
