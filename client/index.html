@@ -20,6 +20,13 @@
             border: 5px double saddlebrown;
         }
 
+        #name-prompt {
+            text-align: center;
+            /*display: none;*/
+            margin-bottom: 5px;
+            
+        }
+
         #preloader {
             text-align: center;
         }
@@ -32,6 +39,14 @@
     <p id="preloader">
         Downloading game files...
     </p>
+    <div id="name-prompt">
+        <form id="name-form">
+            <label>
+                Tell me your name:
+                <input id="name-input" type="text" name="player_name" />
+            </label>
+        </form>
+    </div>
     <div>
         <canvas id="arena-canvas"></canvas>
     </div>

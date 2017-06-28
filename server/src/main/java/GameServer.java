@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 
 import org.java_websocket.WebSocket;
@@ -64,7 +65,14 @@ public class GameServer extends WebSocketServer {
 	@Override
 	public void onMessage( WebSocket conn, String message ) {
 		this.sendToAll( message );
-		System.out.println( conn + ": " + message );
+		System.out.println("String Message: " + message );
+	}
+
+	@Override 
+	public void onMessage( WebSocket conn, ByteBuffer message ) {
+		for(int i = 0; i<16; i++)
+		System.out.println("Byte Message: " + message.get(i) );
+		System.out.println(message.getDouble(0));
 	}
 
 	@Override
