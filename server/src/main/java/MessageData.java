@@ -1,11 +1,11 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public class MessageData {
+class MessageData {
 
-    int messageId;
-    String messageName;
-    Map<String, data.MessageField> parameters;
+private     int messageId;
+private     String messageName;
+private     Map<String, data.MessageField> parameters;
 
     MessageData(int messageId, String messageName){
         this.messageId = messageId;
@@ -26,6 +26,30 @@ public class MessageData {
     void addParameter(String fieldName, Double fieldVal){
         data.MessageFieldDouble newParameter = new data.MessageFieldDouble(fieldName, fieldVal);
         parameters.put(newParameter.getName(), newParameter);
+    }
+
+    int getMessageId() {
+        return messageId;
+    }
+
+    String getMessageName() {
+        return messageName;
+    }
+
+    data.MessageField getParameter(String key){
+        return parameters.get(key);
+    }
+
+    data.MessageFieldInteger getIntegerParameter(String key){
+        return (data.MessageFieldInteger)parameters.get(key);
+    }
+
+    data.MessageFieldString getStringParameter(String key){
+        return (data.MessageFieldString)parameters.get(key);
+    }
+
+    data.MessageFieldDouble getDoubleParameter(String key){
+        return (data.MessageFieldDouble)parameters.get(key);
     }
 
 }
