@@ -19,7 +19,16 @@ public class ProtocolDecoder {
         serverToClientMessageTypes = protocolStandard.getJSONObject("serverToClientMessage").getJSONArray("messageTypes");
     }
 
-    public MessageData decodeMessage(Byte [] byteData){
+    public MessageData decodeMessage(ByteBuffer bufferData){
+
+        //beware of very ugly code
+
+        byte [] tempByteData = bufferData.array();
+        Byte [] byteData = new Byte[tempByteData.length];
+        for(int i = 0; i<tempByteData.length; i++){
+            byteData[i] = tempByteData[i];
+        }
+//======================================================================================================================
 
         Byte [] byteMessageId = Arrays.copyOfRange(byteData, 0, messageIdSize);
         int messageId = 0;
