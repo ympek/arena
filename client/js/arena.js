@@ -5,7 +5,7 @@
 
 var config = {
   serverAddr: "ympek.net:8020", // URI for game server,
-  offlineMode: false // just for development
+  offlineMode: true // just for development
 };
 
 var DOMElements = {
