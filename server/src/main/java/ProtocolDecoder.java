@@ -10,16 +10,25 @@ import java.util.Arrays;
 public class ProtocolDecoder {
 
     int messageIdSize;
-    JSONArray serverToClientMessageTypes;
+    JSONArray clientToServerMessageTypes;
 
     public ProtocolDecoder(String protocolFile) throws java.io.IOException{
         File protocol = new File(protocolFile);
         JSONObject protocolStandard = new JSONObject(new String(Files.readAllBytes(Paths.get(protocol.getPath()))));
         this.messageIdSize = protocolStandard.getInt("messageIdSize")/8;    //important! size is given in bits and we need bytes
-        serverToClientMessageTypes = protocolStandard.getJSONObject("serverToClientMessage").getJSONArray("messageTypes");
+        clientToServerMessageTypes = protocolStandard.getJSONObject("clientToServerMessage").getJSONArray("messageTypes");
     }
 
-    public MessageData decodeMessage(Byte [] byteData){
+    public MessageData decodeMessage(ByteBuffer bufferData){
+
+        //beware of very ugly code
+
+        byte [] tempByteData = bufferData.array();
+        Byte [] byteData = new Byte[tempByteData.length];
+        for(int i = 0; i<tempByteData.length; i++){
+            byteData[i] = tempByteData[i];
+        }
+//======================================================================================================================
 
         Byte [] byteMessageId = Arrays.copyOfRange(byteData, 0, messageIdSize);
         int messageId = 0;
@@ -27,7 +36,7 @@ public class ProtocolDecoder {
             messageId |= byteMessageId[i]<<((messageIdSize - i -1)*8);
         }
 
-        JSONObject messageType = serverToClientMessageTypes.getJSONObject(messageId);
+        JSONObject messageType = clientToServerMessageTypes.getJSONObject(messageId);
 
         MessageData newMessageData = new MessageData(messageId, messageType.getString("messageName"));
 

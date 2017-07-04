@@ -23,16 +23,13 @@
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.WebSocketImpl;
 import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -42,8 +39,29 @@ import org.java_websocket.server.WebSocketServer;
  */
 public class GameServer extends WebSocketServer {
 
+	ProtocolDecoder protocolDecoder;
+
 	public GameServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
+//		try {
+//			protocolDecoder = new ProtocolDecoder("arenaProtocol.json");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
+//
+//		String testName = "Szymon Mniejmiec";
+//		byte [] testBytes = new byte[65];
+//		testBytes[0] = (byte)0x00;
+//		for(int i = 1; i<65; i++){
+//			testBytes[i] = (byte)0x00;
+//			if(i<testName.length()+1) testBytes[i] = (byte)testName.charAt(i-1);
+//		}
+//		ByteBuffer testBuffer = ByteBuffer.wrap(testBytes);
+//		MessageData messageData = protocolDecoder.decodeMessage(testBuffer);
+//		System.out.println(messageData.getStringParameter("name").getValue());
+//		LOCAL DECODER TEST
+
 	}
 
 	public GameServer( InetSocketAddress address ) {
@@ -72,7 +90,13 @@ public class GameServer extends WebSocketServer {
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
 		for(int i = 0; i<16; i++)
 		System.out.println("Byte Message: " + message.get(i) );
-		System.out.println(message.getDouble(0));
+
+//		MessageData messageData = protocolDecoder.decodeMessage(message);
+//		if(messageData.getMessageName() == "loginReq" && messageData.getMessageId() == 0){
+//			MessageFieldString name = messageData.getStringParameter("name");
+//			System.out.println("Your name is: " + name.getValue());
+//		}
+//		UNCOMMENT WHEN READY FOR REAL TEST!
 	}
 
 	@Override
