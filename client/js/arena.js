@@ -21,12 +21,22 @@ if (document.readyState === "complete") {
   document.addEventListener("DOMContentLoaded", prepareGame);
 }
 
+function testEncoder(encoder) {
+  "use strict";
+  console.log('Bd testowac');
+  encoder.init();
+  var bytes = encoder.encode(1, ["dupa"]); // zawsze trzeba bd to podawac jako tablice? nie rob tak
+  console.log('Oto bajty:', bytes);
+}
+
 function prepareGame() {
   "use strict";
   DOMElements.preloader.innerHTML = "Preparing game...";
 
   if (!config.offlineMode) {
     Socket.establishConnection();
+  } else {
+    testEncoder(Encoder);
   }
 
   document.getElementById('name-form').onsubmit = function (e) {
