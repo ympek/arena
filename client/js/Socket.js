@@ -15,6 +15,8 @@ var Socket = (function() {
     sock.onopen = function(ev) {
       console.log("Connection established." + ev.data);
       // sock.send("Opening!");
+      var newEv = new CustomEvent('conn.established', {});
+      document.dispatchEvent(newEv);
     };
 
     sock.onmessage = function(ev) {
@@ -31,10 +33,14 @@ var Socket = (function() {
   // type could be message name if string and index if number
   // params are array of parameters and the ordering is important
   // TODO: can be a map (dictionary) too.
-
+  var send = function () {
+    // Tu wszystko i tak jest singletonem wiec nie musze chyba robic zadnego containera DI.
+    Encoder.encode();
+  };
 
   return {
     establishConnection: establishConnection,
     sendString: sendString,
+    send: send
   };
 })();

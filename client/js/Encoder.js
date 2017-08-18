@@ -1,6 +1,9 @@
 /* exported Socket */
 /* global  console, ArrayBuffer, DataView, Uint8Array */
 
+function sendTestMessage() {
+  
+}
 
 // todo: move protocol somewhere else - load as json
 var protocol = {
@@ -147,6 +150,11 @@ var Encoder = (function (protocol) {
       return false;
     }
     // ensure proper types before assign?
+
+    if (!(params.map && typeof params.map === "function")) {
+      params = [params];
+    }
+
     var binaryParams = params.map(function(paramValue, index) {
       // mapping params to bytes or so
       // what is this abomination
@@ -205,6 +213,7 @@ var Encoder = (function (protocol) {
     binaryParams.forEach(function(paramBytes) {
       // treat as bytes
       var currParam = new Uint8Array(paramBytes.bytes);
+      console.log("currParam", currParam);
       // i teraz bedzie size / 8 bajtow - de facto musze moc tu wyciagnac size z obiektu
       var numBytes = paramBytes.size / 8;
       for (var i = 0; i < numBytes; i++) {
@@ -262,7 +271,7 @@ var Encoder = (function (protocol) {
   }
 
   return {
-      init: init,
+    init: init,
     encode: encode
   };
 })(protocol);
