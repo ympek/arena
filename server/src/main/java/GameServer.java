@@ -91,7 +91,7 @@ public class GameServer extends WebSocketServer {
 
 	@Override 
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
-
+		System.out.println(conn.hashCode());
 		MessageData messageData = protocolDecoder.decodeMessage(message);
 		if(GlobalSettings.traces) {
             if (messageData.getMessageName().equals("loginReq") && messageData.getMessageId() == 0) {
