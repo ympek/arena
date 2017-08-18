@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
+import data.*;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ClientHandshake;
@@ -40,6 +41,7 @@ import org.java_websocket.server.WebSocketServer;
 public class GameServer extends WebSocketServer {
 
 	ProtocolDecoder protocolDecoder;
+	MessageDispatcher messageDispatcher;
 
 	public GameServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
@@ -48,6 +50,7 @@ public class GameServer extends WebSocketServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		messageDispatcher = new MessageDispatcher();
 //		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
 //
 //		String testName = "Szymon Mniejmiec";
@@ -88,15 +91,15 @@ public class GameServer extends WebSocketServer {
 
 	@Override 
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
-		MessageData messageData = protocolDecoder.decodeMessage(message);
-		System.out.println(messageData.getStringParameter("name").getValue());
 
-//		MessageData messageData = protocolDecoder.decodeMessage(message);
-//		if(messageData.getMessageName() == "loginReq" && messageData.getMessageId() == 0){
-//			MessageFieldString name = messageData.getStringParameter("name");
-//			System.out.println("Your name is: " + name.getValue());
-//		}
-//		UNCOMMENT WHEN READY FOR REAL TEST!
+		MessageData messageData = protocolDecoder.decodeMessage(message);
+		if(messageData.getMessageName().equals("loginReq") && messageData.getMessageId() == 0){
+			MessageFieldString name = messageData.getStringParameter("name");
+			System.out.println("Your name is: " + name.getValue());
+		}
+
+		messageDispatcher.handleMessage(messageData);
+
 	}
 
 	@Override
