@@ -40,6 +40,47 @@ function send_loginReq(value) {
   Socket.sendString(buf);
 }
 
+function getBinarizeFunc(type) {
+  switch(type) {
+    case "int":
+      return binarizeInt; 
+    case "float":
+      return binarizeFloat;
+    case "string":
+      return binarizeString;
+    default:
+      return function() {};
+  }
+}
+
+function send_anything(messageId, paramsArray) {
+  var byteData = [];
+  var size = 1;
+
+  paramsArray.forEach(function (param, index) {
+    var binaryOut = getBinarizeFunc(param.type)(param.size, param.value);
+    byteData[index] = binaryOut;
+    byteData[index].view = new Uint8Array(binaryOut.buffer);
+    size += binaryOut.size/8;
+  });
+  
+  var bufAll = new ArrayBuffer(size);
+  var bufView = new Uint8Array(bufAll);
+  bufView[0] = messageId;
+
+  var globCounter = 1;
+  
+  byteData.forEach(function (bd, index) {
+    for (var i = 0; i < bd.size/8; i++) {
+      bufView[globCounter] = bd.view[i];
+      globCounter++;      
+    }
+  });
+
+  Socket.sendString(bufAll);
+  
+}
+
 function send_actionInd(inputId, absMouseCoordX, absMouseCoordY) {
   var len = 17; // int8 + 2 floaty 64(1 + 8 + 8)
   var bufAll = new ArrayBuffer(len + 1);
@@ -95,7 +136,7 @@ function testEncoder(encoder) {
   "use strict";
   console.log("Bd testowac");
   encoder.init();
-  var bytes = encoder.encode(1, ["dupa"]); // zawsze trzeba bd to podawac jako tablice? nie rob tak
+  // var bytes = encoder.encode(1, ["dupa"]); // zawsze trzeba bd to podawac jako tablice? nie rob tak
 
   var obj = binarizeString(16, "11szymon");
   var obj2 = binarizeInt(1, 564);
@@ -158,14 +199,14 @@ function prepareGame() {
     Socket.establishConnection(config.serverAddr);
   } else {
     Socket.establishConnection(config.serverAddr);
-    testEncoder(Encoder);
+    // testEncoder(Encoder);
   }
 
   document.getElementById("name-form").onsubmit = function(e) {
     e.preventDefault();
     var val = document.getElementById("name-input").value;
-    Encoder.init();
-    var bytes = Encoder.encode("string", val);
+    // Encoder.init();
+    // var bytes = Encoder.encode("string", val);
     // Socket.send
     send_loginReq(val);
   };
@@ -190,7 +231,26 @@ DOMElements.canvas.oncontextmenu = function(ev) {
 
   // Socket.send("actionInd", ["test"], 16);
   console.log("Sending......")
-  send_actionInd();
+  send_anything(1, [
+    {
+      name: "inputId",
+      type: "int",
+      size: 8,
+      value: 40
+    },
+    {
+      type: "float",
+      name: "absMouseCoordX",
+      size: 64,
+      value: 907.502
+    },
+    {
+      type: "float",
+      name: "absMouseCoordY",
+      size: 64,
+      value: 707.502
+    }
+  ]);
 };
 
 DOMElements.canvas.onclick = function(ev) {

@@ -8,9 +8,11 @@ public class Arena {
 
     public static void main(String [] args) throws InterruptedException , IOException {
 
+
+
+
         //chodzi o to, żeby serwer był tylko klasą wykorzystywaną przez klasę główną
         //spróbuj to jakoś posprzątać, żeby było ładnie
-
         WebSocketImpl.DEBUG = false;
         int port = 8020;
         try {
