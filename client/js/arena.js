@@ -23,6 +23,24 @@ if (document.readyState === "complete") {
 } else {
   document.addEventListener("DOMContentLoaded", prepareGame);
 }
+function sendBinaryString(value) {
+  
+  var len = 64;
+  var buf = new ArrayBuffer(len + 1);
+  var bufView = new Uint8Array(buf);
+  bufView[0] = 0;
+  for (var i = 1; i <= len; i++) {
+    console.log(i);
+    if (value.charCodeAt(i-1)) {
+      bufView[i] = value.charCodeAt(i-1);        
+    } else {
+      bufView[i] = 0;
+    }
+  }
+
+  Socket.sendString(buf);
+
+}
 
 function testEncoder(encoder) {
   "use strict";
@@ -31,9 +49,10 @@ function testEncoder(encoder) {
   var bytes = encoder.encode(1, ["dupa"]); // zawsze trzeba bd to podawac jako tablice? nie rob tak
   console.log('Oto bajty DUPCIA:', bytes);
 
+
+
+
   function binarizeString(size, value) { console.log("Binarize String")
-    // mozliwe ze bd tu mogl/musial uzywac ArrayBuffer.transfer
-    console.log("YO", size, value);
     var buf = new ArrayBuffer(size);
     var bufView = new Uint8Array(buf);
     for (var i = 0, len = value.length; i < len; i++) {
@@ -81,10 +100,14 @@ function testEncoder(encoder) {
   var bufView = new Uint8Array(obj.buffer);
   var bufView2 = new Int8Array(obj2.buffer);
 
+
+
   console.log('view', bufView)
   console.log('vie2w', bufView2, bufView2.buffer);
   document.addEventListener('conn.established', function () {
-    Socket.sendString(obj.buffer);
+    // Socket.sendString(obj.buffer);
+    // Socket.sendString()
+    sendBinaryString("abc");
   });
 }
 
@@ -108,6 +131,7 @@ function prepareGame() {
     console.log('TU bajty nowe', bytes);
 
     // Socket.sendString(val);
+    sendBinaryString(val);
   };
 }
 

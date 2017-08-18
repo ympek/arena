@@ -43,11 +43,11 @@ public class GameServer extends WebSocketServer {
 
 	public GameServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
-//		try {
-//			protocolDecoder = new ProtocolDecoder("arenaProtocol.json");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			protocolDecoder = new ProtocolDecoder("arenaProtocol.json");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 //		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
 //
 //		String testName = "Szymon Mniejmiec";
@@ -88,8 +88,8 @@ public class GameServer extends WebSocketServer {
 
 	@Override 
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
-		for(int i = 0; i<16; i++)
-		System.out.println("Byte Message: " + message.get(i) );
+		MessageData messageData = protocolDecoder.decodeMessage(message);
+		System.out.println(messageData.getStringParameter("name").getValue());
 
 //		MessageData messageData = protocolDecoder.decodeMessage(message);
 //		if(messageData.getMessageName() == "loginReq" && messageData.getMessageId() == 0){

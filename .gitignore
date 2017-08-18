@@ -2,6 +2,7 @@
 .idea
 .vscode
 .vscode-upload.json
+.gradle/
 
 # client stuff
 client/node_modules
