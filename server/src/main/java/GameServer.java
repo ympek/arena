@@ -41,6 +41,7 @@ import org.java_websocket.server.WebSocketServer;
 public class GameServer extends WebSocketServer {
 
 	ProtocolDecoder protocolDecoder;
+	PlayerManager playerManager;
 	MessageDispatcher messageDispatcher;
 
 	public GameServer( int port ) throws UnknownHostException {
@@ -50,7 +51,8 @@ public class GameServer extends WebSocketServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		messageDispatcher = new MessageDispatcher();
+		playerManager = new PlayerManager();
+		messageDispatcher = new MessageDispatcher(playerManager);
 //		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
 //
 //		String testName = "Szymon Mniejmiec";
@@ -73,14 +75,12 @@ public class GameServer extends WebSocketServer {
 
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
-		this.sendToAll( "new connection: " + handshake.getResourceDescriptor() );
-		System.out.println( conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!" );
+		playerManager.addPlayer(conn.hashCode());
 	}
 
 	@Override
 	public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
-		this.sendToAll( conn + " has left the room!" );
-		System.out.println( conn + " has left the room!" );
+		playerManager.removePlayer(conn.hashCode());
 	}
 
 	@Override
@@ -91,14 +91,14 @@ public class GameServer extends WebSocketServer {
 
 	@Override 
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
-		System.out.println(conn.hashCode());
 		MessageData messageData = protocolDecoder.decodeMessage(message);
-		if(messageData.getMessageName().equals("loginReq") && messageData.getMessageId() == 0){
-			MessageFieldString name = messageData.getStringParameter("name");
-			System.out.println("Your name is: " + name.getValue());
-		}
-
-		messageDispatcher.handleMessage(messageData);
+		if(GlobalSettings.traces) {
+            if (messageData.getMessageName().equals("loginReq") && messageData.getMessageId() == 0) {
+                MessageFieldString name = messageData.getStringParameter("name");
+                System.out.println("Your name is: " + name.getValue());
+            }
+        }
+		messageDispatcher.handleMessage(conn.hashCode(), messageData);
 
 	}
 
