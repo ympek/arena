@@ -89,7 +89,9 @@ public class GameServer extends WebSocketServer {
 	@Override 
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
 		MessageData messageData = protocolDecoder.decodeMessage(message);
-		System.out.println(messageData.getStringParameter("name").getValue());
+		System.out.println(messageData.getIntegerParameter("inputId").getValue());
+		System.out.println(messageData.getDoubleParameter("absMouseCoordX").getValue());
+		System.out.println(messageData.getDoubleParameter("absMouseCoordY").getValue());
 
 //		MessageData messageData = protocolDecoder.decodeMessage(message);
 //		if(messageData.getMessageName() == "loginReq" && messageData.getMessageId() == 0){
