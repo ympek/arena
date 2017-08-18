@@ -1,39 +1,34 @@
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 public class MessageDispatcher {
 
-    ArrayList<PlayerContext> players;
-    Set<String> playersNames;
-    PlayerContext testPlayer;
+    PlayerManager playerManager;
 
-    MessageDispatcher(){
-        players = new ArrayList<>();
-        playersNames = new HashSet<>();
+    MessageDispatcher(PlayerManager playerManager){
+
+        this.playerManager = playerManager;
     }
 
-    void handleMessage(MessageData messageData){
+    void handleMessage(int hash, MessageData messageData){
         if(GlobalSettings.traces){
             System.out.println("Message handled, id: " + messageData.getMessageId());
         }
-        if(messageData.getMessageId() == 0){
-            if(playersNames.add(messageData.getStringParameter("name").getValue())){
-                players.add(new PlayerContext(messageData.getStringParameter("name").getValue()));
-            }
-            if(GlobalSettings.traces) {
-                for (int i = 0; i<players.size(); i++){
-                    System.out.println(players.get(i).name);
-                }
-            }
-        }
-        else if(messageData.getMessageId() == 1){
-            testPlayer = new PlayerContext("SzympegPedau");
-            testPlayer.handleMove(  messageData.getIntegerParameter("inputId").getValue(),
-                                    messageData.getDoubleParameter("absMouseCoordX").getValue(),
-                                    messageData.getDoubleParameter("absMouseCoordY").getValue());
+
+        switch (messageData.getMessageId()) {
+            case 0: handleMessageLoginReq(hash, messageData.getStringParameter("name").getValue());
+                    break;
+            case 1: handleMessageActionInd(hash,    messageData.getIntegerParameter("inputId").getValue(),
+                                                    messageData.getDoubleParameter("absMouseCoordX").getValue(),
+                                                    messageData.getDoubleParameter("absMouseCoordY").getValue());
+                    break;
         }
     }
 
+    private void handleMessageLoginReq(int hash, String name){
+        playerManager.getPlayer(hash).setName(name);
 
+    }
+
+    private void handleMessageActionInd(int hash, int keyId, double x, double y){
+        playerManager.getPlayer(hash).handleMove(keyId, x, y);
+
+    }
 }
