@@ -1,10 +1,6 @@
 /* exported Socket */
 /* global  console, ArrayBuffer, DataView, Uint8Array */
 
-function sendTestMessage() {
-  
-}
-
 // todo: move protocol somewhere else - load as json
 var protocol = {
   messageIdSize: 8,
