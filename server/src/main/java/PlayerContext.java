@@ -25,9 +25,11 @@ public class PlayerContext {
         this.prevMouseY = y;
     }
 
-    public void setName(String name) {
+    public boolean setName(String name) {
         GlobalSettings.print("Player name set to: " + name);
+        boolean result = this.name.equals("");
         this.name = name;
         this.ready = true;
+        return result;
     }
 }

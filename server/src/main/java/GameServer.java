@@ -43,6 +43,7 @@ import org.java_websocket.server.WebSocketServer;
 public class GameServer extends WebSocketServer {
 
 	ProtocolDecoder protocolDecoder;
+	ProtocolEncoder protocolEncoder;
 	PlayerManager playerManager;
 	MessageDispatcher messageDispatcher;
 	Map<Integer, WebSocket> conns;
@@ -51,12 +52,13 @@ public class GameServer extends WebSocketServer {
 		super( new InetSocketAddress( port ) );
 		try {
 			protocolDecoder = new ProtocolDecoder("arenaProtocol.json");
+			protocolEncoder = new ProtocolEncoder("arenaProtocol.json");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		conns = new HashMap<>();
 		playerManager = new PlayerManager();
-		messageDispatcher = new MessageDispatcher(playerManager, this);
+		messageDispatcher = new MessageDispatcher(playerManager, this, protocolEncoder);
 //		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
 //
 //		String testName = "Szymon Mniejmiec";
