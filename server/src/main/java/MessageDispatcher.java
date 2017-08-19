@@ -1,10 +1,12 @@
 public class MessageDispatcher {
 
     PlayerManager playerManager;
+    GameServer gameServer;
 
-    MessageDispatcher(PlayerManager playerManager){
+    MessageDispatcher(PlayerManager playerManager, GameServer gameServer){
 
         this.playerManager = playerManager;
+        this.gameServer = gameServer;
     }
 
     void handleMessage(int hash, MessageData messageData){

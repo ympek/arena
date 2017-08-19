@@ -28,6 +28,8 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import data.*;
 import org.java_websocket.WebSocket;
@@ -43,6 +45,7 @@ public class GameServer extends WebSocketServer {
 	ProtocolDecoder protocolDecoder;
 	PlayerManager playerManager;
 	MessageDispatcher messageDispatcher;
+	Map<Integer, WebSocket> conns;
 
 	public GameServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
@@ -51,8 +54,9 @@ public class GameServer extends WebSocketServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		conns = new HashMap<>();
 		playerManager = new PlayerManager();
-		messageDispatcher = new MessageDispatcher(playerManager);
+		messageDispatcher = new MessageDispatcher(playerManager, this);
 //		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
 //
 //		String testName = "Szymon Mniejmiec";
@@ -75,11 +79,13 @@ public class GameServer extends WebSocketServer {
 
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
+	    conns.put(conn.hashCode(), conn);
 		playerManager.addPlayer(conn.hashCode());
 	}
 
 	@Override
 	public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
+	    conns.remove(conn.hashCode());
 		playerManager.removePlayer(conn.hashCode());
 	}
 
@@ -136,4 +142,8 @@ public class GameServer extends WebSocketServer {
 			}
 		}
 	}
+
+	public void sendToPlayer(int hash, ByteBuffer message){
+	    conns.get(hash).send(message);
+    }
 }
