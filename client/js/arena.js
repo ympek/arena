@@ -16,6 +16,8 @@ var DOMElements = {
   canvas: document.getElementById("arena-canvas")
 };
 
+
+
 // place for preloader
 
 if (document.readyState === "complete") {
@@ -29,6 +31,7 @@ function getBinarizeFunc(type) {
     case "int":
       return binarizeInt; 
     case "float":
+    case "double":
       return binarizeFloat;
     case "string":
       return binarizeString;
@@ -36,6 +39,62 @@ function getBinarizeFunc(type) {
       return function() {};
   }
 }
+
+
+function sendFromProto(msgId, params) {
+  // to sie powinno wyzej zadziac raczej
+  var clientTypes = protocol.clientToServerMessage.messageTypes;
+  if (typeof msgId === "number") {
+    // its ok, skip
+  } else if (typeof msgId === "string") {
+    var numericId = -1;
+    clientTypes.forEach(function (clientType, index) {
+      if (clientType.messageName === msgId) {
+        numericId = index;
+        // przerwij
+        return false;
+      }
+    });
+    if (numericId === -1) {
+      console.error('Message identifier' + msgId +'not found in protocol.');
+    } else {
+      msgId = numericId;
+    }
+  } else {
+    console.error('Invalid type of message identifier.')
+  }
+  var protocolParams = clientTypes[msgId].messageParameters;    
+  
+  var paramsMap = {};
+  protocolParams.forEach(function (param, index) {
+    paramsMap[param.name] = {};
+    paramsMap[param.name].index = index;
+    paramsMap[param.name].name  = param.name;
+    paramsMap[param.name].size  = param.size;
+    paramsMap[param.name].type  = param.type;
+  }); // taka odwrotna tablica
+
+  console.log('paramsMap', paramsMap);
+
+  var paramsArray = [];
+  for (var key in params) {
+    if (params.hasOwnProperty(key)) {
+      paramsMap[key].value = params[key];
+
+      var idx = paramsMap[key].index;
+      paramsArray[idx] = paramsMap[key];
+    }
+  }
+
+  console.log('paramsArray', paramsArray);
+
+  send_anything(msgId, paramsArray);
+};
+
+// jesli jest tylko jeden parametr to wiadomo o co chodzi
+// to trzeba tez obsluzyc, ale moze nie od razu
+// sendFromProto("loginReq", { name: "szymon"});
+// jesli jest obiekt 
 
 function send_anything(messageId, paramsArray) {
   var byteData = [];
@@ -57,7 +116,7 @@ function send_anything(messageId, paramsArray) {
   byteData.forEach(function (bd, index) {
     for (var i = 0; i < bd.size/8; i++) {
       bufView[globCounter] = bd.view[i];
-      globCounter++;      
+      globCounter++;
     }
   });
 
@@ -104,15 +163,22 @@ function binarizeInt(size, value) {
   };
 }
 
+var protocol;
+
 function prepareGame() {
   "use strict";
   DOMElements.preloader.innerHTML = "Preparing game...";
+
+  protocol = Loader.loadProtocol();
+  console.log('protocol', protocol);
 
   if (!config.offlineMode) {
     Socket.establishConnection(config.serverAddr);
   } else {
     Socket.establishConnection(config.serverAddr);
-    // testEncoder(Encoder);
+    document.addEventListener('conn.established', function() {
+      Socket.sendString("bababab");
+    });
   }
 
   document.getElementById("name-form").onsubmit = function(e) {
@@ -122,12 +188,15 @@ function prepareGame() {
     // var bytes = Encoder.encode("string", val);
     // Socket.send
     // send_loginReq(val);
-    send_anything(0, [{
-      name: "loginReq",
-      size: 512,
-      type: "string",
-      value: val
-    }]);
+    // send_anything(0, [{
+    //   name: "loginReq",
+    //   size: 512,
+    //   type: "string",
+    //   value: val
+    // }]);
+    sendFromProto(0, {
+      name: val
+    });
   };
 }
 
@@ -152,26 +221,31 @@ DOMElements.canvas.oncontextmenu = function(ev) {
   // Socket.send("actionInd", ["test"], 16);
   console.log("Mouse position: " + mousePos.x + "," + mousePos.y);
   
-  send_anything(1, [
-    {
-      name: "inputId",
-      type: "int",
-      size: 8,
-      value: 40
-    },
-    {
-      type: "float",
-      name: "absMouseCoordX",
-      size: 64,
-      value: mousePos.x
-    },
-    {
-      type: "float",
-      name: "absMouseCoordY",
-      size: 64,
-      value: mousePos.y
-    }
-  ]);
+  // send_anything(1, [
+  //   {
+  //     name: "inputId",
+  //     type: "int",
+  //     size: 8,
+  //     value: 40
+  //   },
+  //   {
+  //     type: "float",
+  //     name: "absMouseCoordX",
+  //     size: 64,
+  //     value: mousePos.x
+  //   },
+  //   {
+  //     type: "float",
+  //     name: "absMouseCoordY",
+  //     size: 64,
+  //     value: mousePos.y
+  //   }
+  // ]);
+  sendFromProto("actionInd", {
+    absMouseCoordX: mousePos.x,
+    inputId: 40,
+    absMouseCoordY: mousePos.y
+  });
 };
 
 DOMElements.canvas.onclick = function(ev) {

@@ -14,15 +14,15 @@ public class PlayerContext {
         this.prevMouseY = 0;
     }
 
-    void handleMove(int keyId, double x, double y){
+    void handleMove(int keyId, double x, double y) {
+        if(!this.ready)
+            return;
 
-        if(this.ready) {
-            if (GlobalSettings.traces) {
-                System.out.println("PlayerContext::diff x: " + (prevMouseX - x) + "diff y: " + (prevMouseY - y));
-            }
-            this.prevMouseX = x;
-            this.prevMouseY = y;
+        if (GlobalSettings.traces) {
+            System.out.println("PlayerContext::diff x: " + (prevMouseX - x) + "diff y: " + (prevMouseY - y));
         }
+        this.prevMouseX = x;
+        this.prevMouseY = y;
     }
 
     public void setName(String name) {

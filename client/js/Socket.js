@@ -35,7 +35,7 @@ var Socket = (function() {
   // TODO: can be a map (dictionary) too.
   var send = function () {
     // Tu wszystko i tak jest singletonem wiec nie musze chyba robic zadnego containera DI.
-    Encoder.encode();
+    // sock
   };
 
   return {
