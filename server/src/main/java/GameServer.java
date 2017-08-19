@@ -147,6 +147,6 @@ public class GameServer extends WebSocketServer {
 	}
 
 	public void sendToPlayer(int hash, ByteBuffer message){
-	    conns.get(hash).send(message);
+	    conns.get(hash).send(message.flip());
     }
 }
