@@ -25,7 +25,8 @@ public class ProtocolEncoder {
         //encode messageId
         ArrayList<Byte> bytes = new ArrayList<>();
 
-        byte[] messageId = ByteBuffer.allocate(messageIdSize).putInt(messageData.getMessageId()).array();
+//        byte[] messageId = ByteBuffer.allocate(messageIdSize).putInt(messageData.getMessageId()).array();
+        byte[] messageId = intToByteArray(messageData.getMessageId(),messageIdSize);
 
         for (byte b : messageId) {
             bytes.add(b);
@@ -42,7 +43,8 @@ public class ProtocolEncoder {
 
             if (param.getString("type").equals("int")) {
                 int tempInt = messageData.getIntegerParameter(param.getString("name")).getValue();
-                byte[] intBytes = ByteBuffer.allocate(param.getInt("size")/8).putInt(tempInt).array();
+//                byte[] intBytes = ByteBuffer.allocate(param.getInt("size")/8).putInt(tempInt).array();
+                byte[] intBytes = intToByteArray(tempInt,param.getInt("size")/8);
                 for (byte b : intBytes) {
                     bytes.add(b);
                 }
@@ -70,4 +72,11 @@ public class ProtocolEncoder {
         return buffer;
     }
 
+    public static final byte[] intToByteArray(int value, int size) {
+        byte[] result = new byte[size];
+        for (int i = 0; i < size; i++) {
+            result[i] = (byte)(value >>> (size - i - 1)*8);
+        }
+        return result;
+    }
 }
