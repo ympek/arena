@@ -16,6 +16,8 @@ var DOMElements = {
   canvas: document.getElementById("arena-canvas")
 };
 
+
+
 // place for preloader
 
 if (document.readyState === "complete") {
@@ -24,27 +26,12 @@ if (document.readyState === "complete") {
   document.addEventListener("DOMContentLoaded", prepareGame);
 }
 
-function send_loginReq(value) {
-  var len = 64;
-  var buf = new ArrayBuffer(len + 1);
-  var bufView = new Uint8Array(buf);
-  bufView[0] = 0;
-  for (var i = 1; i <= len; i++) {
-    console.log(i);
-    if (value.charCodeAt(i - 1)) {
-      bufView[i] = value.charCodeAt(i - 1);
-    } else {
-      bufView[i] = 0;
-    }
-  }
-  Socket.sendString(buf);
-}
-
 function getBinarizeFunc(type) {
   switch(type) {
     case "int":
       return binarizeInt; 
     case "float":
+    case "double":
       return binarizeFloat;
     case "string":
       return binarizeString;
@@ -52,6 +39,62 @@ function getBinarizeFunc(type) {
       return function() {};
   }
 }
+
+
+function sendFromProto(msgId, params) {
+  // to sie powinno wyzej zadziac raczej
+  var clientTypes = protocol.clientToServerMessage.messageTypes;
+  if (typeof msgId === "number") {
+    // its ok, skip
+  } else if (typeof msgId === "string") {
+    var numericId = -1;
+    clientTypes.forEach(function (clientType, index) {
+      if (clientType.messageName === msgId) {
+        numericId = index;
+        // przerwij
+        return false;
+      }
+    });
+    if (numericId === -1) {
+      console.error('Message identifier' + msgId +'not found in protocol.');
+    } else {
+      msgId = numericId;
+    }
+  } else {
+    console.error('Invalid type of message identifier.')
+  }
+  var protocolParams = clientTypes[msgId].messageParameters;    
+  
+  var paramsMap = {};
+  protocolParams.forEach(function (param, index) {
+    paramsMap[param.name] = {};
+    paramsMap[param.name].index = index;
+    paramsMap[param.name].name  = param.name;
+    paramsMap[param.name].size  = param.size;
+    paramsMap[param.name].type  = param.type;
+  }); // taka odwrotna tablica
+
+  console.log('paramsMap', paramsMap);
+
+  var paramsArray = [];
+  for (var key in params) {
+    if (params.hasOwnProperty(key)) {
+      paramsMap[key].value = params[key];
+
+      var idx = paramsMap[key].index;
+      paramsArray[idx] = paramsMap[key];
+    }
+  }
+
+  console.log('paramsArray', paramsArray);
+
+  send_anything(msgId, paramsArray);
+};
+
+// jesli jest tylko jeden parametr to wiadomo o co chodzi
+// to trzeba tez obsluzyc, ale moze nie od razu
+// sendFromProto("loginReq", { name: "szymon"});
+// jesli jest obiekt 
 
 function send_anything(messageId, paramsArray) {
   var byteData = [];
@@ -73,82 +116,11 @@ function send_anything(messageId, paramsArray) {
   byteData.forEach(function (bd, index) {
     for (var i = 0; i < bd.size/8; i++) {
       bufView[globCounter] = bd.view[i];
-      globCounter++;      
+      globCounter++;
     }
   });
 
   Socket.sendString(bufAll);
-  
-}
-
-function send_actionInd(inputId, absMouseCoordX, absMouseCoordY) {
-  var len = 17; // int8 + 2 floaty 64(1 + 8 + 8)
-  var bufAll = new ArrayBuffer(len + 1);
-  var bufView = new Uint8Array(bufAll);
-  bufView[0] = 1;
-
-  var int1 = binarizeInt(8, 42);
-  var float1 = binarizeFloat(64, 501.502);
-  var float2 = binarizeFloat(64, 102.322);
-
-  var int1View = new Uint8Array(int1.buffer);
-  var float1View = new Uint8Array(float1.buffer);
-  var float2View = new Uint8Array(float2.buffer);
-
-  // var buf = new ArrayBuffer(size);
-  // var dataView = new DataView(buf);
-  // dataView.setInt8(0, value);
-
-  console.log('Dupa', int1View[0]);
-
-  for (var i = 1; i <= len; i++) {
-    bufView[1] = int1View[0];
-
-    bufView[2] = float1View[0];
-    bufView[3] = float1View[1];
-    bufView[4] = float1View[2];
-    bufView[5] = float1View[3];
-    bufView[6] = float1View[4];
-    bufView[7] = float1View[5];
-    bufView[8] = float1View[6];
-    bufView[9] = float1View[7];
-
-    bufView[10] = float2View[0];
-    bufView[11] = float2View[1];
-    bufView[12] = float2View[2];
-    bufView[13] = float2View[3];
-    bufView[14] = float2View[4];
-    bufView[15] = float2View[5];
-    bufView[16] = float2View[6];
-    bufView[17] = float2View[7];
-  }
-
-  console.log('aaaa', len);
-  for (var i = 0; i <= len; i++) {
-    console.log('bbb');
-    console.log(bufView[i]);
-  }
-
-  Socket.sendString(bufAll);
-}
-
-function testEncoder(encoder) {
-  "use strict";
-  console.log("Bd testowac");
-  encoder.init();
-  // var bytes = encoder.encode(1, ["dupa"]); // zawsze trzeba bd to podawac jako tablice? nie rob tak
-
-  var obj = binarizeString(16, "11szymon");
-  var obj2 = binarizeInt(1, 564);
-
-  var bufView = new Uint8Array(obj.buffer);
-  var bufView2 = new Int8Array(obj2.buffer);
-
-  document.addEventListener("conn.established", function() {
-    // Socket.sendString(obj.buffer);
-    // Socket.sendString()
-    // sendBinaryString("abc");
-  });
 }
 
 function binarizeString(size, value) {
@@ -191,15 +163,22 @@ function binarizeInt(size, value) {
   };
 }
 
+var protocol;
+
 function prepareGame() {
   "use strict";
   DOMElements.preloader.innerHTML = "Preparing game...";
+
+  protocol = Loader.loadProtocol();
+  console.log('protocol', protocol);
 
   if (!config.offlineMode) {
     Socket.establishConnection(config.serverAddr);
   } else {
     Socket.establishConnection(config.serverAddr);
-    // testEncoder(Encoder);
+    document.addEventListener('conn.established', function() {
+      Socket.sendString("bababab");
+    });
   }
 
   document.getElementById("name-form").onsubmit = function(e) {
@@ -208,13 +187,23 @@ function prepareGame() {
     // Encoder.init();
     // var bytes = Encoder.encode("string", val);
     // Socket.send
-    send_loginReq(val);
+    // send_loginReq(val);
+    // send_anything(0, [{
+    //   name: "loginReq",
+    //   size: 512,
+    //   type: "string",
+    //   value: val
+    // }]);
+    sendFromProto(0, {
+      name: val
+    });
   };
 }
 
 function getMousePos(evt) {
   "use strict";
   var rect = DOMElements.canvas.getBoundingClientRect();
+  console.log("GetMousePos", evt.clientX, evt.clientY, rect.left, rect.top);
   return {
     x: evt.clientX - rect.left,
     y: evt.clientY - rect.top
@@ -230,34 +219,38 @@ DOMElements.canvas.oncontextmenu = function(ev) {
   var message = "Mouse position: " + mousePos.x + "," + mousePos.y;
 
   // Socket.send("actionInd", ["test"], 16);
-  console.log("Sending......")
-  send_anything(1, [
-    {
-      name: "inputId",
-      type: "int",
-      size: 8,
-      value: 40
-    },
-    {
-      type: "float",
-      name: "absMouseCoordX",
-      size: 64,
-      value: 907.502
-    },
-    {
-      type: "float",
-      name: "absMouseCoordY",
-      size: 64,
-      value: 707.502
-    }
-  ]);
+  console.log("Mouse position: " + mousePos.x + "," + mousePos.y);
+  
+  // send_anything(1, [
+  //   {
+  //     name: "inputId",
+  //     type: "int",
+  //     size: 8,
+  //     value: 40
+  //   },
+  //   {
+  //     type: "float",
+  //     name: "absMouseCoordX",
+  //     size: 64,
+  //     value: mousePos.x
+  //   },
+  //   {
+  //     type: "float",
+  //     name: "absMouseCoordY",
+  //     size: 64,
+  //     value: mousePos.y
+  //   }
+  // ]);
+  sendFromProto("actionInd", {
+    absMouseCoordX: mousePos.x,
+    inputId: 40,
+    absMouseCoordY: mousePos.y
+  });
 };
 
 DOMElements.canvas.onclick = function(ev) {
   "use strict";
   console.log("left click");
   var mousePos = getMousePos(ev);
-  console.log("Mouse position: " + mousePos.x + "," + mousePos.y);
-
-  Socket.send("tradeInd", ["testAction"], 32);
+  console.log("Mouse position: " + mousePos.x + " --- " + mousePos.y);
 };

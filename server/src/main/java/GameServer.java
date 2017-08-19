@@ -92,6 +92,7 @@ public class GameServer extends WebSocketServer {
 	@Override
 	public void onMessage( WebSocket conn, String message ) {
 		this.sendToAll( message );
+		
 		System.out.println("String Message: " + message );
 	}
 
