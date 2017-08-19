@@ -20,8 +20,16 @@ var Socket = (function() {
     };
 
     sock.onmessage = function(ev) {
-      console.log("recv data.");
-      console.log(ev.data);
+      console.log("recv data:");
+      console.log(ev);
+      var d = ev.data; 
+      console.log('aaaa', d.toString());
+      
+      var newEv = new CustomEvent('data.received', {
+        detail: ev.data
+      });
+      
+      document.dispatchEvent(newEv);
     };
   };
 

@@ -40,6 +40,9 @@ function getBinarizeFunc(type) {
   }
 }
 
+function receiveFromProto(msgId, params) {
+
+}
 
 function sendFromProto(msgId, params) {
   // to sie powinno wyzej zadziac raczej
@@ -178,6 +181,12 @@ function prepareGame() {
     Socket.establishConnection(config.serverAddr);
     document.addEventListener('conn.established', function() {
       Socket.sendString("bababab");
+
+      document.addEventListener('data.received', function (ev) {
+        console.log('Event from listener', ev.detail);
+        decodeByProtocol(ev.detail);
+      });
+
     });
   }
 
@@ -196,8 +205,18 @@ function prepareGame() {
     // }]);
     sendFromProto(0, {
       name: val
-    });
+    }); 
   };
+}
+
+function decodeByProtocol(buf) {
+  console.log("Decoding...");
+  console.log(buf);
+  // spodziewam sie ze tu przyjdzie buffer
+  var dataView = new DataView(buf);
+  var msgId = dataView.getInt8(0);
+  var answerCode = dataView.getInt8(1);
+  console.log('i guess messageId is: ', msgId, "answerCode", answerCode);
 }
 
 function getMousePos(evt) {
