@@ -204,7 +204,7 @@ function prepareGame() {
     //   value: val
     // }]);
     sendFromProto(0, {
-      name: val
+      name: val.trim()
     }); 
   };
 }

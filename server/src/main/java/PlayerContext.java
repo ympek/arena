@@ -27,7 +27,7 @@ public class PlayerContext {
 
     public boolean setName(String name) {
         GlobalSettings.print("Player name set to: " + name);
-        boolean result = this.name.equals("szympeg");
+        boolean result = this.name.trim().equals("");
         this.name = name;
         this.ready = true;
         return result;
