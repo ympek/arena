@@ -3,10 +3,13 @@
 .vscode
 .vscode-upload.json
 .gradle/
+tags
 
 # client stuff
 client/node_modules
 client/all.js
+# this is generated from placeholder
+client/js/ProtocolProvider.js
 
 # server stuff
 server/.gradle

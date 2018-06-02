@@ -1,22 +1,14 @@
 /* global console, document */
 /* global Socket */
 
-// BTW, we dont target older IE versions
-
 var config = {
-  serverAddr: "ympek.net:8020", // URI for game server,
-  offlineMode: true // just for development
+  serverAddr: "localhost:8021", // URI for game server,
 };
-
-// for offline development
-// config.serverAddr = "localhost:8020";
 
 var DOMElements = {
   preloader: document.getElementById("preloader"),
   canvas: document.getElementById("arena-canvas")
 };
-
-
 
 // place for preloader
 
@@ -26,35 +18,20 @@ if (document.readyState === "complete") {
   document.addEventListener("DOMContentLoaded", prepareGame);
 }
 
-function getBinarizeFunc(type) {
-  switch(type) {
-    case "int":
-      return binarizeInt; 
-    case "float":
-    case "double":
-      return binarizeFloat;
-    case "string":
-      return binarizeString;
-    default:
-      return function() {};
-  }
-}
-
 function receiveFromProto(msgId, params) {
 
 }
 
-function sendFromProto(msgId, params) {
+function sendFromProto(msgId, params) { // Message ID can be number or string.
   // to sie powinno wyzej zadziac raczej
   var clientTypes = protocol.clientToServerMessage.messageTypes;
   if (typeof msgId === "number") {
-    // its ok, skip
+    // fall through
   } else if (typeof msgId === "string") {
     var numericId = -1;
     clientTypes.forEach(function (clientType, index) {
       if (clientType.messageName === msgId) {
         numericId = index;
-        // przerwij
         return false;
       }
     });
@@ -66,8 +43,9 @@ function sendFromProto(msgId, params) {
   } else {
     console.error('Invalid type of message identifier.')
   }
-  var protocolParams = clientTypes[msgId].messageParameters;    
-  
+
+  var protocolParams = clientTypes[msgId].messageParameters;
+
   var paramsMap = {};
   protocolParams.forEach(function (param, index) {
     paramsMap[param.name] = {};
@@ -91,82 +69,23 @@ function sendFromProto(msgId, params) {
 
   console.log('paramsArray', paramsArray);
 
-  send_anything(msgId, paramsArray);
+  Socket.send(msgId, paramsArray);
 };
 
 // jesli jest tylko jeden parametr to wiadomo o co chodzi
 // to trzeba tez obsluzyc, ale moze nie od razu
 // sendFromProto("loginReq", { name: "szymon"});
-// jesli jest obiekt 
+// jesli jest obiekt
 
-function send_anything(messageId, paramsArray) {
-  var byteData = [];
-  var size = 1;
 
-  paramsArray.forEach(function (param, index) {
-    var binaryOut = getBinarizeFunc(param.type)(param.size, param.value);
-    byteData[index] = binaryOut;
-    byteData[index].view = new Uint8Array(binaryOut.buffer);
-    size += binaryOut.size/8;
-  });
-  
-  var bufAll = new ArrayBuffer(size);
-  var bufView = new Uint8Array(bufAll);
-  bufView[0] = messageId;
-
-  var globCounter = 1;
-  
-  byteData.forEach(function (bd, index) {
-    for (var i = 0; i < bd.size/8; i++) {
-      bufView[globCounter] = bd.view[i];
-      globCounter++;
-    }
-  });
-
-  Socket.sendString(bufAll);
-}
-
-function binarizeString(size, value) {
-  console.log("Binarize String");
-  var buf = new ArrayBuffer(size);
-  var bufView = new Uint8Array(buf);
-  for (var i = 0, len = value.length; i < len; i++) {
-    bufView[i] = value.charCodeAt(i);
-  }
-  return {
-    size: size,
-    buffer: buf
-  };
-}
-
-function binarizeFloat(size, value) {
-  console.log("Binarize Float");
-  var buf = new ArrayBuffer(size);
-  var dataView = new DataView(buf);
-  dataView.setFloat64(0, value);
-  // sock.send(msg.buffer);
-  // sock.send(dataView);
-  return {
-    size: size,
-    buffer: buf
-  };
-}
-
-function binarizeInt(size, value) {
-  console.log("Binarize int");
-  // tylko ze tutaj zakladam de facto ze kazdy int bedzie 8
-  var buf = new ArrayBuffer(size);
-  var dataView = new DataView(buf);
-  dataView.setInt8(0, value);
-  // sock.send(msg.buffer);
-  // sock.send(dataView);
-  return {
-    size: size,
-    buffer: buf
-  };
-}
 
 var protocol;
+
+function registerSocketListener() {
+  document.addEventListener('data.received', function (ev) {
+    decodeByProtocol(ev.detail);
+  });
+}
 
 function prepareGame() {
   "use strict";
@@ -175,45 +94,31 @@ function prepareGame() {
   protocol = Loader.loadProtocol();
   console.log('protocol', protocol);
 
-  if (!config.offlineMode) {
-    Socket.establishConnection(config.serverAddr);
-  } else {
-    Socket.establishConnection(config.serverAddr);
-    document.addEventListener('conn.established', function() {
-      Socket.sendString("bababab");
+  Socket.establishConnection(config.serverAddr);
+  document.addEventListener('conn.established', function() {
 
-      document.addEventListener('data.received', function (ev) {
-        console.log('Event from listener', ev.detail);
-        decodeByProtocol(ev.detail);
-      });
-
-    });
-  }
+    registerSocketListener();
+  });
 
   document.getElementById("name-form").onsubmit = function(e) {
     e.preventDefault();
     var val = document.getElementById("name-input").value;
-    // Encoder.init();
-    // var bytes = Encoder.encode("string", val);
-    // Socket.send
-    // send_loginReq(val);
-    // send_anything(0, [{
-    //   name: "loginReq",
-    //   size: 512,
-    //   type: "string",
-    //   value: val
-    // }]);
     sendFromProto(0, {
       name: val.trim()
-    }); 
+    });
   };
 }
 
-function decodeByProtocol(buf) {
+function decodeByProtocol(bytes) { // Type: ArrayBuffer
   console.log("Decoding...");
-  console.log(buf);
+  console.log(bytes);
   // spodziewam sie ze tu przyjdzie buffer
-  var dataView = new DataView(buf);
+
+  if (!bytes || bytes.constructor !== ArrayBuffer)
+  {
+    console.error("Received corrupted/invalid message from server: ");
+  }
+  var dataView = new DataView(bytes);
   var msgId = dataView.getInt8(0);
   var answerCode = dataView.getInt8(1);
   console.log('i guess messageId is: ', msgId, "answerCode", answerCode);
@@ -239,7 +144,7 @@ DOMElements.canvas.oncontextmenu = function(ev) {
 
   // Socket.send("actionInd", ["test"], 16);
   console.log("Mouse position: " + mousePos.x + "," + mousePos.y);
-  
+
   // send_anything(1, [
   //   {
   //     name: "inputId",
