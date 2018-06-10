@@ -1,4 +1,3 @@
-/t/ js hint options:
 /* exported Socket */
 /* global WebSocket, console, ArrayBuffer, DataView, Uint8Array */
 

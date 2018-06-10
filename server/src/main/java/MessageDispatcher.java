@@ -47,8 +47,10 @@ public class MessageDispatcher {
                 response.addParameter("answerCode", 0);
             }
             //kod z ustawianiem spawnu
-            response.addParameter("spawnX", (int)playerManager.getPlayer(hash).positionX);
-            response.addParameter("spawnY", (int)playerManager.getPlayer(hash).positionY);
+            //response.addParameter("spawnX", 50);
+            response.addParameter("spawnX", (int)(playerManager.getPlayer(hash).positionX));
+            //response.addParameter("spawnY", 444);
+            response.addParameter("spawnY", (int)(playerManager.getPlayer(hash).positionY));
         }
 
         gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));

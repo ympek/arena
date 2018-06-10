@@ -1,64 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>ARENA</title>
     <style type="text/css">
-        h1 {
-            text-align: center;
-        }
+h1 {
+  text-align: center;
+  font-family: 'Comic Sans MS';
+}
 
         canvas {
-            width: 50vw;
-            height: 50vh;
-            margin: 0 auto;
-            display: block;
+          margin: 0 auto;
+          display: block;
 
-            border: 5px double saddlebrown;
+          border: 5px double saddlebrown;
         }
 
         #name-prompt {
-            text-align: center;
-            /*display: none;*/
-            margin-bottom: 5px;
+          text-align: center;
+          margin-bottom: 5px;
+          background: url('/img/drewno.png');
+          background-repeat: no-repeat;
+          background-size: cover;
+          color: white;
+          box-shadow: 0px 5px 8px 3px #333;
+          padding: 60px 5px;
+          border-radius: 20px;
+          width: 60%;
 
+          transform: translateX(25%) translateY(20%);
+
+
+        }
+
+        #name-prompt input {
+          font-size: 20pt;
+          padding: 6px;
+          border: 1px solid saddlebrown;
+          color: saddlebrown;
         }
 
         #preloader {
-            text-align: center;
+          text-align: center;
+        }
+
+        body {
+          background: url('/img/placeholder-splash.png');
+          background-repeat: no-repeat;
+          background-size: cover;
+        }
+        .root {
+          position: relative;
+        }
+        #name-form button {
+          font-family: 'Comic Sans MS';
+          font-size: 28px;
         }
 
     </style>
-</head>
+  </head>
 
-<body>
-    <h1>ARENA. MOBA</h1>
-    <p id="preloader">
-        Downloading game files...
-    </p>
-    <div id="name-prompt">
+  <body>
+    <div class="root">
+      <p id="preloader">
+      </p>
+      <div style="text-align:center; padding-top: 80px;">
+        <img src="/img/logotype.png"/>
+      </div>
+      <div id="name-prompt">
+        <h1>Welcome to the Arena! Tell me thy name:</h1>
         <form id="name-form">
-            <label>
-                Tell me your name:
-                <input id="name-input" type="text" name="player_name" />
-            </label>
+          <label>
+            <input id="name-input" type="text" name="player_name" />
+          </label>
+          <button type="submit">Join the battle!</button>
         </form>
-    </div>
-    <div>
-        <canvas id="arena-canvas"></canvas>
-    </div>
+      </div>
+      <div id="canvas-box" style="display:none;">
+        <canvas id="arena-canvas" width="1200" height="600"></canvas>
+      </div>
 
-    <script src="js/ProtocolProvider.js"></script>
-    <script src="js/Loader.js"></script>
-    <script src="js/arena.js"></script>
-    <script src="js/Game.js"></script>
-    <script src="js/Player.js"></script>
-    <script src="js/Socket.js"></script>
-    <script src="js/Encoder.js"></script>
-    </script>
-</body>
+      <script src="js/ProtocolProvider.js"></script>
+      <script src="js/Loader.js"></script>
+      <script src="js/arena.js"></script>
+      <script src="js/Game.js"></script>
+      <script src="js/Player.js"></script>
+      <script src="js/Socket.js"></script>
+      <script src="js/Encoder.js"></script>
+      </script>
+    </div>
+  </body>
 
 </html>

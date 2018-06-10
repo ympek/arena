@@ -43,6 +43,31 @@
             "name": "answerCode",
             "size": 8,
             "type": "int"
+          },
+          {
+            "name": "spawnX",
+            "size": 32,
+            "type": "int"
+          },
+          {
+            "name": "spawnY",
+            "size": 32,
+            "type": "int"
+          }
+        ]
+      },
+      {
+        "messageName": "loginRej",
+        "messageParameters": [
+          {
+            "name": "answerCode",
+            "size": 8,
+            "type": "int"
+          },
+          {
+            "name": "responseString",
+            "size": 512,
+            "type": "string"
           }
         ]
       },

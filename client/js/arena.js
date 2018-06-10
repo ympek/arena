@@ -7,8 +7,12 @@ var config = {
 
 var DOMElements = {
   preloader: document.getElementById("preloader"),
-  canvas: document.getElementById("arena-canvas")
+  canvas: document.getElementById("arena-canvas"),
+  canvasBox: document.getElementById("canvas-box"),
+  namePrompt: document.getElementById("name-prompt")
 };
+
+var ctx = DOMElements.canvas.getContext('2d');
 
 // place for preloader
 
@@ -41,7 +45,7 @@ function sendFromProto(msgId, params) { // Message ID can be number or string.
       msgId = numericId;
     }
   } else {
-    console.error('Invalid type of message identifier.')
+    console.error('Invalid type of message identifier.');
   }
 
   var protocolParams = clientTypes[msgId].messageParameters;
@@ -70,7 +74,7 @@ function sendFromProto(msgId, params) { // Message ID can be number or string.
   console.log('paramsArray', paramsArray);
 
   Socket.send(msgId, paramsArray);
-};
+}
 
 // jesli jest tylko jeden parametr to wiadomo o co chodzi
 // to trzeba tez obsluzyc, ale moze nie od razu
@@ -83,8 +87,32 @@ var protocol;
 
 function registerSocketListener() {
   document.addEventListener('data.received', function (ev) {
-    decodeByProtocol(ev.detail);
+    var msg = decodeByProtocol(ev.detail);
+    switch(msg._name) {
+      case "loginAck":
+        showArenaCanvas();
+        putPlayer(msg.spawnX, msg.spawnY);
+        break;
+      case "loginRej":
+        break;
+      default:
+        console.log("Unknown msg");
+    }
   });
+}
+
+function showArenaCanvas()
+{
+  DOMElements.namePrompt.style = 'display: none';
+  DOMElements.canvasBox.style = 'display: block';
+  document.body.style.background = 'white';
+}
+
+function putPlayer(x, y)
+{
+  console.log("Putting player at : " ,x ,y);
+  ctx.fillStyle = 'rgb(255, 0, 0)';
+  ctx.fillRect(x, y, 10, 10);
 }
 
 function prepareGame() {
@@ -106,7 +134,7 @@ function prepareGame() {
     sendFromProto(0, {
       name: val.trim()
     });
-  };
+   };
 }
 
 function decodeByProtocol(bytes) { // Type: ArrayBuffer
@@ -120,8 +148,44 @@ function decodeByProtocol(bytes) { // Type: ArrayBuffer
   }
   var dataView = new DataView(bytes);
   var msgId = dataView.getInt8(0);
-  var answerCode = dataView.getInt8(1);
-  console.log('i guess messageId is: ', msgId, "answerCode", answerCode);
+  /// Actually decode: should be own func
+
+  // array of msgs
+  var messages = protocol.serverToClientMessage.messageTypes;
+
+
+  var receivedMsg = messages[msgId];
+  console.log("Co to za message:" , receivedMsg);
+
+  console.log("Received message:", receivedMsg.messageName);
+  var currentView;
+  var decodedMsg = {};
+  var offset = 1;
+  receivedMsg.messageParameters.forEach(function (param, i) {
+    console.log(param);
+    var numOfParamBytes = param.size/8;
+    currentView = new DataView(bytes, offset);
+    if (param.type == "int") {
+      if (param.size == 8) {
+        decodedMsg[param.name] = currentView.getInt8();
+      }
+      if (param.size == 32) {
+        decodedMsg[param.name] = currentView.getInt32();
+      }
+    }
+    if (param.type == "double")
+    {
+      decodedMsg[param.name] = currentView.getFloat64();
+    }
+    if (param.type == "string")
+    {
+      console.log("Decoded string. TODO");
+    }
+    offset += param.size/8;
+  });
+  console.log("Decoded Msg: ", decodedMsg);
+  decodedMsg._name = receivedMsg.messageName;
+  return decodedMsg;
 }
 
 function getMousePos(evt) {
