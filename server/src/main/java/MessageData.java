@@ -41,6 +41,7 @@ private     Map<String, data.MessageField> parameters;
     }
 
     data.MessageFieldInteger getIntegerParameter(String key){
+        System.out.println(parameters.get(key).getName());
         return (data.MessageFieldInteger)parameters.get(key);
     }
 
