@@ -42,36 +42,14 @@ import org.java_websocket.server.WebSocketServer;
  */
 public class GameServer extends WebSocketServer {
 
-	ProtocolDecoder protocolDecoder;
-	ProtocolEncoder protocolEncoder;
 	PlayerManager playerManager;
-	MessageDispatcher messageDispatcher;
 	Map<Integer, WebSocket> conns;
 
 	public GameServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
-		try {
-			protocolDecoder = new ProtocolDecoder("arenaProtocol.json");
-			protocolEncoder = new ProtocolEncoder("arenaProtocol.json");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
 		conns = new HashMap<>();
-		playerManager = new PlayerManager();
-		messageDispatcher = new MessageDispatcher(playerManager, this, protocolEncoder);
-//		THIS MAY CAUSE A PROBLEM WITH READING A FILE FROM THE SAME JAR, NEED TO INVESTIGATE
-//
-//		String testName = "Szymon Mniejmiec";
-//		byte [] testBytes = new byte[65];
-//		testBytes[0] = (byte)0x00;
-//		for(int i = 1; i<65; i++){
-//			testBytes[i] = (byte)0x00;
-//			if(i<testName.length()+1) testBytes[i] = (byte)testName.charAt(i-1);
-//		}
-//		ByteBuffer testBuffer = ByteBuffer.wrap(testBytes);
-//		MessageData messageData = protocolDecoder.decodeMessage(testBuffer);
-//		System.out.println(messageData.getStringParameter("name").getValue());
-//		LOCAL DECODER TEST
+		playerManager = new PlayerManager(this);
 
 	}
 
@@ -82,13 +60,13 @@ public class GameServer extends WebSocketServer {
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
 	    conns.put(conn.hashCode(), conn);
-		playerManager.addPlayer(conn.hashCode());
+		playerManager.newConnection(conn.hashCode());
 	}
 
 	@Override
 	public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
-	    conns.remove(conn.hashCode());
-		playerManager.removePlayer(conn.hashCode());
+		playerManager.removeConnection(conn.hashCode());
+		conns.remove(conn.hashCode());
 	}
 
 	@Override
@@ -100,15 +78,7 @@ public class GameServer extends WebSocketServer {
 
 	@Override 
 	public void onMessage( WebSocket conn, ByteBuffer message ) {
-		MessageData messageData = protocolDecoder.decodeMessage(message);
-		if(GlobalSettings.traces) {
-            if (messageData.getMessageName().equals("loginReq") && messageData.getMessageId() == 0) {
-                MessageFieldString name = messageData.getStringParameter("name");
-                System.out.println("Your name is: " + name.getValue());
-            }
-        }
-		messageDispatcher.handleMessage(conn.hashCode(), messageData);
-
+		playerManager.handleMessage(conn.hashCode(), message);
 	}
 
 	@Override
