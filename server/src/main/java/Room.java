@@ -18,7 +18,6 @@ public class Room implements Runnable {
     int size = 0;
 
     Room(GameServer gameServer, ProtocolEncoder protocolEncoder){
-        internalThread = new Thread(this);
         this.running = false;
         this.players = new HashMap<>();
         this.gameServer = gameServer;
@@ -43,8 +42,9 @@ public class Room implements Runnable {
                 response.addParameter("spawnY", (int)players.get(hash).positionY);
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
 
-                if(this.size == 1) {
+                if(this.running == false) {
                     this.running = true;
+                    internalThread = new Thread(this);
                     internalThread.start();
                 }
                 GlobalSettings.print("New player: " + players.get(hash).name);
@@ -131,10 +131,10 @@ public class Room implements Runnable {
             totalTime += System.nanoTime() - startTime;
             frameCount++;
             if(frameCount == GlobalSettings.MAX_FPS){
-                //long averageFPS = 1000/((totalTime/frameCount)/(1000*1000));
+                long averageFPS = 1000/((totalTime/frameCount)/(1000*1000));
                 frameCount = 0;
                 totalTime = 0;
-                //System.out.println(averageFPS);
+                System.out.println(averageFPS);
             }
         }
     }
