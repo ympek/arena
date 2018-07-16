@@ -64,6 +64,8 @@ class PlayerManager {
 
         if(rooms.size() == 0) rooms.add(new Room(gameServer, protocolEncoder));
 
+        bestRoom = rooms.get(0);
+        
         for(Room room : rooms){
             if(room.size < minSize){
                 bestRoom = room;

@@ -41,7 +41,7 @@ public class PlayerContext {
         targetX = x;
         targetY = y;
 
-        GlobalSettings.print("Player target: X = " + targetX + "; target Y = " + targetY);
+        GlobalSettings.print("Player "+ name +" target: X = " + targetX + "; target Y = " + targetY);
     }
 
     void move(){
@@ -55,7 +55,7 @@ public class PlayerContext {
 
     void update(int frame){
         if(frame == 0){ //update once every second
-            GlobalSettings.print("Player " + name + "position: x = " + positionX + "; y = " + positionY);
+            GlobalSettings.print("Player " + name + " position: x = " + positionX + "; y = " + positionY);
         }
 
     }
