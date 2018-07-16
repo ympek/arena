@@ -31,14 +31,6 @@ var Socket = (function() {
     };
   };
 
-
-  // high-level function: send message of specific type and with params
-  // type could be message name if string and index if number
-  // params are array of parameters and the ordering is important
-  // TODO: can be a map (dictionary) too.
-    // Tu wszystko i tak jest singletonem wiec nie musze chyba robic zadnego containera DI.
-    // sock
-
   var send = function(messageId, paramsArray) {
     var buf = encode(messageId, paramsArray);
 
@@ -99,12 +91,14 @@ function getBinarizeFunc(type) {
 }
 
 function binarizeString(size, value) {
-  console.log("Binarize String");
+  console.log("Binarize string");
   var buf = new ArrayBuffer(size);
   var bufView = new Uint8Array(buf);
+  // fails for non-ascii i guess.
   for (var i = 0, len = value.length; i < len; i++) {
     bufView[i] = value.charCodeAt(i);
   }
+  
   return {
     size: size,
     buffer: buf
@@ -112,12 +106,11 @@ function binarizeString(size, value) {
 }
 
 function binarizeFloat(size, value) {
-  console.log("Binarize Float");
+  console.log("Binarize float");
   var buf = new ArrayBuffer(size);
   var dataView = new DataView(buf);
   dataView.setFloat64(0, value);
-  // sock.send(msg.buffer);
-  // sock.send(dataView);
+
   return {
     size: size,
     buffer: buf
@@ -130,8 +123,7 @@ function binarizeInt(size, value) {
   var buf = new ArrayBuffer(size);
   var dataView = new DataView(buf);
   dataView.setInt8(0, value);
-  // sock.send(msg.buffer);
-  // sock.send(dataView);
+
   return {
     size: size,
     buffer: buf
