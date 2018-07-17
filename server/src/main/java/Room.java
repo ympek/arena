@@ -36,10 +36,8 @@ public class Room implements Runnable {
                 players.put(hash, new PlayerContext(playerInfo.name));
                 this.size = players.size();
 
-                MessageData response = new MessageData(0, "loginAck");
-                response.addParameter("answerCode", 0);
-                response.addParameter("spawnX", (int)players.get(hash).positionX);
-                response.addParameter("spawnY", (int)players.get(hash).positionY);
+                MessageData response = MessageBuilder.buildLoginAck(0, (int)players.get(hash).positionX, (int)players.get(hash).positionY);
+
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
 
                 if(this.running == false) {

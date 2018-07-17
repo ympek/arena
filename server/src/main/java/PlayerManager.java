@@ -46,9 +46,7 @@ class PlayerManager {
             if(!handleLoginReq(hash, messageData.getStringParameter("name").getValue())){
                 //PlayerManager responses with reject message if all rooms are full
                 //in case of success acknowledge is sent by specific room
-                MessageData response = new MessageData(1, "loginRej");
-                response.addParameter("answerCode", 0);
-                response.addParameter("responseString", "All rooms are full!");
+                MessageData response = MessageBuilder.buildLoginRej(0,"All rooms are full!");
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
             }
         }
