@@ -1,6 +1,6 @@
 {
   "name": "arena-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "In-browser MOBA-like game",
   "main": "arena.min.js",
   "repository": {
@@ -18,7 +18,9 @@
     "concat": "type js\\*.js > all.js"
   },
   "devDependencies": {
-    "jshint": "^2.9.5"
+    "jshint": "^2.9.5",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
   },
   "jshintConfig": {
     "undef": true,
@@ -27,5 +29,6 @@
     "globals": {
       "MY_GLOBAL": true
     }
-  }
+  },
+  "dependencies": {}
 }

@@ -1,6 +1,4 @@
-var config = {
-  serverAddr: "localhost:8020", // URI for game server,
-};
+
 
 var DOMElements = {
   canvas: document.getElementById("arena-canvas"),
