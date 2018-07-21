@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by Arkadiusz Nowak on 16.07.2018.
@@ -16,12 +17,20 @@ public class Room implements Runnable {
 
     private Map<Integer, PlayerContext> players;
     int size = 0;
+    private Stack<Integer> freeIds;
+    private int lastVipId;
 
     Room(GameServer gameServer, ProtocolEncoder protocolEncoder){
         this.running = false;
         this.players = new HashMap<>();
         this.gameServer = gameServer;
         this.protocolEncoder = protocolEncoder;
+
+        this.freeIds = new Stack<>();
+        for(int i = 9; i >= 0; --i){
+            freeIds.push(i);
+        }
+        this.lastVipId = 100;
     }
 
     boolean addPlayer(PlayerInfo playerInfo){
@@ -33,12 +42,26 @@ public class Room implements Runnable {
         else{
             synchronized (players){
 
-                players.put(hash, new PlayerContext(playerInfo.name));
+                String name;
+                int id;
+
+                if(playerInfo.vip){
+                    name = "pedau";
+                    id = lastVipId++;
+                }
+                else{
+                    name = playerInfo.name;
+                    id = freeIds.pop();
+                }
+
+                players.put(hash, new PlayerContext(id, name, playerInfo.vip));
                 this.size = players.size();
 
-                MessageData response = MessageBuilder.buildLoginAck(0, (int)players.get(hash).positionX, (int)players.get(hash).positionY);
+                MessageData response = MessageBuilder.buildLoginAck(id, name);
+                MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, players.get(hash).positionX, players.get(hash).positionY, 200);
 
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
+                gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(intro));
 
                 if(this.running == false) {
                     this.running = true;
@@ -53,6 +76,10 @@ public class Room implements Runnable {
 
     void removePlayer(int hash){
         synchronized (players){
+
+            if(!players.get(hash).vip){
+                freeIds.push(players.get(hash).id);
+            }
 
             players.remove(hash);
             this.size = players.size();

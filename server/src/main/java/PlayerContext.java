@@ -2,7 +2,9 @@ import java.util.Random;
 
 public class PlayerContext {
 
+    int id;
     String name;
+    boolean vip;
     boolean ready;
     double targetX;
     double targetY;
@@ -11,11 +13,13 @@ public class PlayerContext {
     double prevPosX;
     double prevPosY;
 
-    PlayerContext(String name){
+    PlayerContext(int id, String name, boolean vip){
 
+        this.id = id;
         Random r = new Random();
         this.ready = true;
         this.name = name;
+        this.vip = vip;
         this.positionX = (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X);
         this.positionY = (double)r.nextInt(GlobalSettings.MAP_SIZE_Y - GlobalSettings.PLAYER_SIZE_Y);
         this.targetX = positionX;

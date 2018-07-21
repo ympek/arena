@@ -3,13 +3,12 @@
  */
 public final class MessageBuilder {
 
-    static final MessageData buildLoginAck(int answerCode, int spawnX, int spawnY){
+    static final MessageData buildLoginAck(int objectId, String name){
 
         MessageData response = new MessageData(0, "loginAck");
 
-        response.addParameter("answerCode", answerCode);
-        response.addParameter("spawnX", spawnX);
-        response.addParameter("spawnY", spawnY);
+        response.addParameter("objectId", objectId);
+        response.addParameter("name", name);
 
         return response;
     }
@@ -35,6 +34,19 @@ public final class MessageBuilder {
         response.addParameter("absTargetCoordX", absTargetCoordX);
         response.addParameter("absTargetCoordY", absTargetCoordY);
         response.addParameter("objectSpeed", objectSpeed);
+
+        return response;
+    }
+
+    static final MessageData buildPlayerIntroInd(int objectId, String name, double positionX, double positionY, int health){
+
+        MessageData response = new MessageData(3, "playerIntroInd");
+
+        response.addParameter("objectId", objectId);
+        response.addParameter("name", name);
+        response.addParameter("absPositionCoordX", positionX);
+        response.addParameter("absPositionCoordY", positionY);
+        response.addParameter("health", health);
 
         return response;
     }
