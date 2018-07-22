@@ -1,3 +1,4 @@
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class Room implements Runnable {
         for(int i = 9; i >= 0; --i){
             freeIds.push(i);
         }
-        this.lastVipId = 100;
+        this.lastVipId = 50;
     }
 
     boolean addPlayer(PlayerInfo playerInfo){
@@ -57,8 +58,10 @@ public class Room implements Runnable {
                 players.put(hash, new PlayerContext(id, name, playerInfo.vip));
                 this.size = players.size();
 
+                PlayerContext newPlayer = players.get(hash);
+
                 MessageData response = MessageBuilder.buildLoginAck(id, name);
-                MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, players.get(hash).positionX, players.get(hash).positionY, 200);
+                MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, newPlayer.positionX, newPlayer.positionY, newPlayer.health);
 
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(intro));
@@ -68,7 +71,7 @@ public class Room implements Runnable {
                     internalThread = new Thread(this);
                     internalThread.start();
                 }
-                GlobalSettings.print("New player: " + players.get(hash).name);
+                GlobalSettings.print("New player: " + newPlayer.name);
                 return true;
             }
         }
@@ -93,10 +96,15 @@ public class Room implements Runnable {
     void handleMessage(int hash, MessageData messageData){
         if(messageData.getMessageId() == 1) { //actionInd
             PlayerContext player = players.get(hash);
-            synchronized (player){
-                player.handleMoveTest(  messageData.getDoubleParameter("absMouseCoordX").getValue(),
-                                        messageData.getDoubleParameter("absMouseCoordY").getValue());
+            synchronized (player) {
+                if (messageData.getIntegerParameter("inputId").getValue() == 3){
+                    player.handleMoveTest(messageData.getDoubleParameter("absMouseCoordX").getValue(),
+                            messageData.getDoubleParameter("absMouseCoordY").getValue());
+                }
             }
+        }
+        else{
+            GlobalSettings.print("WTF, unknown message!");
         }
     }
 
@@ -135,6 +143,14 @@ public class Room implements Runnable {
             synchronized (players){
                 for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
                     entry.getValue().move();
+
+                    ByteBuffer messageBuf = protocolEncoder.encodeMessage(MessageBuilder.buildMoveUpdateInd(
+                            entry.getValue().id, entry.getValue().positionX, entry.getValue().positionY,
+                            entry.getValue().targetX, entry.getValue().targetY, entry.getValue().speed));
+
+                    for(Map.Entry<Integer, PlayerContext> other : players.entrySet()){
+                        gameServer.sendToPlayer(other.getKey(), messageBuf);
+                    }
                     entry.getValue().update(frameCount);
                 }
             }

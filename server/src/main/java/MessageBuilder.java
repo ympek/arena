@@ -44,8 +44,8 @@ public final class MessageBuilder {
 
         response.addParameter("objectId", objectId);
         response.addParameter("name", name);
-        response.addParameter("absPositionCoordX", positionX);
-        response.addParameter("absPositionCoordY", positionY);
+        response.addParameter("positionX", positionX);
+        response.addParameter("positionY", positionY);
         response.addParameter("health", health);
 
         return response;
