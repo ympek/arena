@@ -15,10 +15,13 @@
   "homepage": "https://github.com/ympek/arena#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "concat": "type js\\*.js > all.js"
+    "compile": "node node_modules/typescript/bin/tsc",
+    "minify": "node node_modules/node-minify/bin/cli -i dist/**/*.js -o arena.min.js",
+    "build": "npm run compile && npm run minify"
   },
   "devDependencies": {
     "jshint": "^2.9.5",
+    "node-minify": "^3.1.1",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
   },

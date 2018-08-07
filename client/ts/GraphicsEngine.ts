@@ -6,13 +6,19 @@ import { movingAttr } from './interface/Hero';
 // * document
 // * console
 
+interface Animation {
+    id : string,
+    framesTillDone: number,
+    draw: () => void
+}
+
 export default function GraphicsEngine() {
     const canvas = <HTMLCanvasElement> document.getElementById("arena-canvas");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d")!;
     
     let playerHero : Hero;
 
-    var activeAnimations = [];
+    let activeAnimations : Animation[] = [];
 
     var players = [];
 
@@ -71,7 +77,7 @@ export default function GraphicsEngine() {
 
     const loadImages = function () {
         // this is to change TODO
-        var image = document.getElementById('bg00');
+        var image = document.getElementById('bg00')!;
         console.log("Duh", image);
         image.onload = function () {
             bg.loaded = true;
