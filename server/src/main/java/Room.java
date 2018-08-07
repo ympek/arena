@@ -1,6 +1,8 @@
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by Arkadiusz Nowak on 16.07.2018.
@@ -16,12 +18,20 @@ public class Room implements Runnable {
 
     private Map<Integer, PlayerContext> players;
     int size = 0;
+    private Stack<Integer> freeIds;
+    private int lastVipId;
 
     Room(GameServer gameServer, ProtocolEncoder protocolEncoder){
         this.running = false;
         this.players = new HashMap<>();
         this.gameServer = gameServer;
         this.protocolEncoder = protocolEncoder;
+
+        this.freeIds = new Stack<>();
+        for(int i = 9; i >= 0; --i){
+            freeIds.push(i);
+        }
+        this.lastVipId = 50;
     }
 
     boolean addPlayer(PlayerInfo playerInfo){
@@ -33,21 +43,35 @@ public class Room implements Runnable {
         else{
             synchronized (players){
 
-                players.put(hash, new PlayerContext(playerInfo.name));
+                String name;
+                int id;
+
+                if(playerInfo.vip){
+                    name = "pedau";
+                    id = lastVipId++;
+                }
+                else{
+                    name = playerInfo.name;
+                    id = freeIds.pop();
+                }
+
+                players.put(hash, new PlayerContext(id, name, playerInfo.vip));
                 this.size = players.size();
 
-                MessageData response = new MessageData(0, "loginAck");
-                response.addParameter("answerCode", 0);
-                response.addParameter("spawnX", (int)players.get(hash).positionX);
-                response.addParameter("spawnY", (int)players.get(hash).positionY);
+                PlayerContext newPlayer = players.get(hash);
+
+                MessageData response = MessageBuilder.buildLoginAck(id, name);
+                MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, newPlayer.positionX, newPlayer.positionY, newPlayer.health);
+
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
+                gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(intro));
 
                 if(this.running == false) {
                     this.running = true;
                     internalThread = new Thread(this);
                     internalThread.start();
                 }
-                GlobalSettings.print("New player: " + players.get(hash).name);
+                GlobalSettings.print("New player: " + newPlayer.name);
                 return true;
             }
         }
@@ -55,6 +79,10 @@ public class Room implements Runnable {
 
     void removePlayer(int hash){
         synchronized (players){
+
+            if(!players.get(hash).vip){
+                freeIds.push(players.get(hash).id);
+            }
 
             players.remove(hash);
             this.size = players.size();
@@ -68,10 +96,15 @@ public class Room implements Runnable {
     void handleMessage(int hash, MessageData messageData){
         if(messageData.getMessageId() == 1) { //actionInd
             PlayerContext player = players.get(hash);
-            synchronized (player){
-                player.handleMoveTest(  messageData.getDoubleParameter("absMouseCoordX").getValue(),
-                                        messageData.getDoubleParameter("absMouseCoordY").getValue());
+            synchronized (player) {
+                if (messageData.getIntegerParameter("inputId").getValue() == 3){
+                    player.handleMoveTest(messageData.getDoubleParameter("absMouseCoordX").getValue(),
+                            messageData.getDoubleParameter("absMouseCoordY").getValue());
+                }
             }
+        }
+        else{
+            GlobalSettings.print("WTF, unknown message!");
         }
     }
 
@@ -110,6 +143,14 @@ public class Room implements Runnable {
             synchronized (players){
                 for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
                     entry.getValue().move();
+
+                    ByteBuffer messageBuf = protocolEncoder.encodeMessage(MessageBuilder.buildMoveUpdateInd(
+                            entry.getValue().id, entry.getValue().positionX, entry.getValue().positionY,
+                            entry.getValue().targetX, entry.getValue().targetY, entry.getValue().speed));
+
+                    for(Map.Entry<Integer, PlayerContext> other : players.entrySet()){
+                        gameServer.sendToPlayer(other.getKey(), messageBuf);
+                    }
                     entry.getValue().update(frameCount);
                 }
             }

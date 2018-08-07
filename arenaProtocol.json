@@ -40,19 +40,14 @@
         "messageName": "loginAck",
         "messageParameters": [
           {
-            "name": "answerCode",
+            "name": "objectId",
             "size": 8,
             "type": "int"
           },
           {
-            "name": "spawnX",
-            "size": 32,
-            "type": "int"
-          },
-          {
-            "name": "spawnY",
-            "size": 32,
-            "type": "int"
+            "name": "name",
+            "size": 512,
+            "type": "string"
           }
         ]
       },
@@ -103,6 +98,36 @@
             "name": "objectSpeed",
             "size": 64,
             "type": "double"
+          }
+        ]
+      },
+	  {
+        "messageName": "playerIntroInd",
+        "messageParameters": [
+          {
+            "name": "objectId",
+            "size": 8,
+            "type": "int"
+          },
+          {
+            "name": "name",
+            "size": 512,
+            "type": "string"
+          },
+          {
+            "name": "positionX",
+            "size": 64,
+            "type": "double"
+          },
+          {
+            "name": "positionY",
+            "size": 64,
+            "type": "double"
+          },
+          {
+            "name": "health",
+            "size": 32,
+            "type": "int"
           }
         ]
       }
