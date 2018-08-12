@@ -1,8 +1,14 @@
+package logic;
+
+import actions.Action;
+import actions.ActionDash;
+import actions.ActionMove;
+import actions.Effect;
+import playerData.PlayerContext;
+import playerData.ROPlayerStats;
+
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by Arkadiusz Nowak on 16.07.2018.
@@ -15,14 +21,17 @@ public class Room implements Runnable {
     private boolean running;
     private Thread internalThread;
 
+    public Queue<Integer> playersActionHashes;
+    public Map<Integer, ROPlayerStats> playersActionStats;
 
-    private Map<Integer, PlayerContext> players;
+    public Map<Integer, PlayerContext> players;
     int size = 0;
     private Stack<Integer> freeIds;
     private int lastVipId;
 
     Room(GameServer gameServer, ProtocolEncoder protocolEncoder){
         this.running = false;
+        this.playersActionHashes = new LinkedList<>();
         this.players = new HashMap<>();
         this.gameServer = gameServer;
         this.protocolEncoder = protocolEncoder;
@@ -61,7 +70,7 @@ public class Room implements Runnable {
                 PlayerContext newPlayer = players.get(hash);
 
                 MessageData response = MessageBuilder.buildLoginAck(id, name);
-                MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, newPlayer.positionX, newPlayer.positionY, newPlayer.health);
+                MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, newPlayer.stats.x, newPlayer.stats.y, newPlayer.stats.health);
 
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(intro));
@@ -98,8 +107,19 @@ public class Room implements Runnable {
             PlayerContext player = players.get(hash);
             synchronized (player) {
                 if (messageData.getIntegerParameter("inputId").getValue() == 3){
-                    player.handleMoveTest(messageData.getDoubleParameter("absMouseCoordX").getValue(),
-                            messageData.getDoubleParameter("absMouseCoordY").getValue());
+                    if(!player.stats.hasControl) return;
+                    player.targetX = messageData.getDoubleParameter("absMouseCoordX").getValue();
+                    player.targetY = messageData.getDoubleParameter("absMouseCoordY").getValue();
+                    player.actions.add(new ActionMove(hash, this, player.targetX, player.targetY));
+                    GlobalSettings.print("Player "+ player.name +" target: X = " + player.targetX + "; target Y = " + player.targetY);
+                }
+                else if(messageData.getIntegerParameter("inputId").getValue() == 1){
+                    if(!player.stats.hasControl) return;
+                    if(player.moveAction != null) player.moveAction = null;
+                    player.targetX = messageData.getDoubleParameter("absMouseCoordX").getValue();
+                    player.targetY = messageData.getDoubleParameter("absMouseCoordY").getValue();
+                    player.actions.add(new ActionDash(hash, this, player.targetX, player.targetY));
+                    GlobalSettings.print("Player "+ player.name +" target: X = " + player.targetX + "; target Y = " + player.targetY);
                 }
             }
         }
@@ -112,11 +132,11 @@ public class Room implements Runnable {
     public void run() {
 
         long startTime;
-        long timeMillis = 1000/GlobalSettings.MAX_FPS;
+        long timeMillis = 1000/ GlobalSettings.MAX_FPS;
         long waitTime = 0;
         int frameCount = 0;
         long totalTime = 0;
-        long targetTime = 1000/GlobalSettings.MAX_FPS;
+        long targetTime = 1000/ GlobalSettings.MAX_FPS;
         long gameTime = System.nanoTime();
 
         while(running) {
@@ -127,26 +147,58 @@ public class Room implements Runnable {
 
             //copy of players state
 
-            Map<Integer, PlayerContext> playersMap = new HashMap<>();
+            playersActionStats = new HashMap<>();
             synchronized(players){
                 for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
-                    playersMap.put(entry.getKey(), new PlayerContext(entry.getValue()));
+                    playersActionStats.put(entry.getKey(), entry.getValue().stats);
+                    playersActionHashes.add(entry.getKey());
                 }
             }
 
-            // stuff
+            // execute all actions according to queue of players having anything to do
+            while (!playersActionHashes.isEmpty()) {
+                for (Action action : players.get(playersActionHashes.poll()).actions) {
+                    if(action.isActive)
+                        action.execute();
+                }
+            }
 
-                //TODO
-
-            // update
+            // execute move for each player
+            for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
+                if(entry.getValue().moveAction != null){
+                    entry.getValue().moveAction.execute();
+                }
+            }
 
             synchronized (players){
                 for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
-                    entry.getValue().move();
+                    //remove dead actions
+                    entry.getValue().actions.removeIf(action -> !action.isAlive);
+                    if(!entry.getValue().moveAction.isAlive) entry.getValue().moveAction = null;
 
+                    //execute status effects for each player and clear effect list
+                    Iterator<Effect> sEffectIterator = entry.getValue().statusEffects.iterator();
+                    while(sEffectIterator.hasNext()){
+                        Effect sEffect = sEffectIterator.next();
+                        sEffect.execute();
+                        if(sEffect.time == 0) sEffectIterator.remove();
+                    }
+
+                    //execute parameters changing effects for each player and clear effect list
+                    Iterator<Effect> pEffectIterator = entry.getValue().paramEffects.iterator();
+                    while(pEffectIterator.hasNext()){
+                        Effect pEffect = pEffectIterator.next();
+                        pEffect.execute();
+                        if(pEffect.time == 0) pEffectIterator.remove();
+                    }
+
+                    //==================================================================================================
+                    //check if dead
+                    //make parameters and movement validation
+                    //==================================================================================================
                     ByteBuffer messageBuf = protocolEncoder.encodeMessage(MessageBuilder.buildMoveUpdateInd(
-                            entry.getValue().id, entry.getValue().positionX, entry.getValue().positionY,
-                            entry.getValue().targetX, entry.getValue().targetY, entry.getValue().speed));
+                            entry.getValue().id, entry.getValue().stats.x, entry.getValue().stats.y,
+                            entry.getValue().targetX, entry.getValue().targetY, entry.getValue().stats.speed));
 
                     for(Map.Entry<Integer, PlayerContext> other : players.entrySet()){
                         gameServer.sendToPlayer(other.getKey(), messageBuf);
