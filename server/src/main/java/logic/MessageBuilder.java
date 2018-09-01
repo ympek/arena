@@ -52,4 +52,13 @@ public final class MessageBuilder {
 
         return response;
     }
+
+    static final MessageData buildPlayerLogoutInd(int objectId){
+
+        MessageData response = new MessageData(4, "playerLogoutInd");
+
+        response.addParameter("objectId", objectId);
+
+        return response;
+    }
 }

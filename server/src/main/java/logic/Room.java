@@ -104,18 +104,23 @@ public class Room implements Runnable {
     }
 
     void removePlayer(int hash){
+        int id;
         synchronized (players){
 
             if(!players.get(hash).vip){
                 freeIds.push(players.get(hash).id);
             }
-
+            id = players.get(hash).id;
             players.remove(hash);
             this.size = players.size();
 
             if(this.size == 0){
                 this.running = false;
             }
+        }
+        ByteBuffer logoutInd = protocolEncoder.encodeMessage(MessageBuilder.buildPlayerLogoutInd(id));
+        for(Map.Entry<Integer, PlayerContext> player : players.entrySet()){
+            gameServer.sendToPlayer(player.getKey(), logoutInd);
         }
     }
 
