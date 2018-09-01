@@ -174,8 +174,10 @@ public class Room implements Runnable {
                 for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
                     //remove dead actions
                     entry.getValue().actions.removeIf(action -> !action.isAlive);
-                    if(!entry.getValue().moveAction.isAlive) entry.getValue().moveAction = null;
-
+                    if (entry.getValue().moveAction != null) {
+                        if(!entry.getValue().moveAction.isAlive)
+                          entry.getValue().moveAction = null;
+                    }
                     //execute status effects for each player and clear effect list
                     Iterator<Effect> sEffectIterator = entry.getValue().statusEffects.iterator();
                     while(sEffectIterator.hasNext()){

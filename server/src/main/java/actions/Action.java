@@ -1,5 +1,4 @@
 package actions;
-import javafx.util.Pair;
 import logic.Room;
 import playerData.PlayerContext;
 
