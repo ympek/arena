@@ -9,6 +9,10 @@ import IPoint from './interface/IPoint';
 let ge: any;
 let sock: any;
 let canv = <HTMLCanvasElement>document.getElementById("arena-canvas");
+let currMousePos = {
+  x: 0,
+  y: 0
+};
 
 sock = Socket();
 // request anim frame bedzie wlasciwie tutaj
@@ -30,12 +34,11 @@ var handleKeyPress = function (ev: KeyboardEvent) {
 const handleKeySpace = function (ev) {
   ev.preventDefault();
   console.log('Handle Key: Space');
-  let mousePos = getMousePos(ev);
   // oprocz tego send to socket
   dispatchMessage(1, {
     inputId: 1, // space
-    absMouseCoordX: mousePos.x,
-    absMouseCoordY: mousePos.y
+    absMouseCoordX: currMousePos.x,
+    absMouseCoordY: currMousePos.y
   });
 };
 
@@ -64,7 +67,6 @@ var getMousePos = function (evt: MouseEvent): IPoint {
   };
 }
 
-
 const attachEventListeners = function () {
   window.onresize = ge.adjustCanvasToWindow;
   document.onkeydown = handleKeyPress;
@@ -80,7 +82,9 @@ const attachEventListeners = function () {
     });
   };
 
-
+  canv.onmouseover = function (ev) {
+    currMousePos = getMousePos(ev);
+  }
 };
 
 const DOMElements = {
