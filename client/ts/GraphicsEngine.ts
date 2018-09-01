@@ -242,7 +242,7 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
 
         // adding draw function:
         newHero.draw = function (this: Hero) {
-            ctx.fillStyle = 'magenta';
+            ctx.fillStyle = color;
             ctx.fillRect(this.posX, this.posY, 32, 32);
         };
 
@@ -301,12 +301,29 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         return true;
     };
 
+    const removePlayer = function (id : number) {
+        // first we need to find proper player idx.
+        let i : number = -1;
+        for (let hero of heroes) {
+            if (hero.id === id) {
+                i = id;
+                break;
+            }
+        }
+
+        // our player is heroes[i]. now lets continue
+        if (i !== -1) {
+            heroes.splice(i, 1);
+        }
+    };
+
     return {
         run: run,
         addPlayer: addPlayer,
         adjustCanvasToWindow: adjustCanvasToWindow,
         saveCurrentPlayerId: saveCurrentPlayerId,
         handleRightClick: handleRightClick,
-        updatePlayerPosition: updatePlayerPosition
+        updatePlayerPosition: updatePlayerPosition,
+        removePlayer: removePlayer
     }
 }

@@ -33,7 +33,7 @@ const handleKeySpace = function (ev) {
   let mousePos = getMousePos(ev);
   ge.handleRightClick(mousePos);
   // oprocz tego send to socket
-  dispatchMessage(3, { // how can we make that they're not magic numbs
+  dispatchMessage(1, {
     inputId: 1, // space
     absMouseCoordX: mousePos.x,
     absMouseCoordY: mousePos.y
@@ -211,7 +211,7 @@ function registerSocketListener() {
         ge.addPlayer(msg.objectId, msg.positionX, msg.positionY, msg.health);
         break;
       case "moveUpdateInd":
-        console.log("move Update.", );
+        console.log("move Update.");
         ge.updatePlayerPosition(
           msg.objectId,
           msg.absPositionCoordX,
@@ -220,6 +220,9 @@ function registerSocketListener() {
           msg.absTargetCoordY,
           msg.objectSpeed
         );
+        break;
+      case "playerLogoutInd":
+        ge.removePlayer(msg.objectId);
         break;
       default:
         console.log("Unknown msg", msg);
