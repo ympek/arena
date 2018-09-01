@@ -27,8 +27,17 @@ var handleKeyPress = function (ev: KeyboardEvent) {
   }
 };
 
-const handleKeySpace = function () {
+const handleKeySpace = function (ev) {
+  ev.preventDefault();
   console.log('Handle Key: Space');
+  let mousePos = getMousePos(ev);
+  ge.handleRightClick(mousePos);
+  // oprocz tego send to socket
+  dispatchMessage(3, { // how can we make that they're not magic numbs
+    inputId: 1, // space
+    absMouseCoordX: mousePos.x,
+    absMouseCoordY: mousePos.y
+  });
 };
 
 const handleKeyQ = function () {

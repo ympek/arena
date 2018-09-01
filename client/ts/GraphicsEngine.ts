@@ -220,12 +220,25 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         heroes[0].movingAttr = movingAttr;
     };
 
+    const getRandomColorHex = function () {
+        var options = "0123456789ABCDEF";
+        var ret = "#";
+        while (ret.length < 7) {
+            // losujmy miedzy 0 a 15
+            var num = Math.floor(Math.random() * 16 - 1);
+            ret += options[num];
+        }
+        return ret;
+    };
+
     var addPlayer = function (id: number, posX: number, posY: number, health: number) {
         console.log('Adding player at position: ', posX, posY);
 
         console.log("porownanie idkow:", id, currentPlayerId);
 
         let newHero = new Hero(id, posX, posY, health);
+
+        let color = getRandomColorHex();
 
         // adding draw function:
         newHero.draw = function (this: Hero) {
