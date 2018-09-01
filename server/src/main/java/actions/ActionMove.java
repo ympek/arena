@@ -12,9 +12,9 @@ public class ActionMove extends Action {
 
     public double targetX;
     public double targetY;
-    private ROPlayerStats player;
+    private PlayerContext player;
 
-    public ActionMove(int hash, Room room, ROPlayerStats player, double targetX, double targetY, boolean isActive){
+    public ActionMove(int hash, Room room, PlayerContext player, double targetX, double targetY, boolean isActive){
         super(hash, room);
         this.player = player;
         this.targetX = targetX;
@@ -37,11 +37,11 @@ public class ActionMove extends Action {
 
         //ROPlayerStats player = room.playersActionStats.get(playerHash);
 
-        if(!player.hasControl) return;
+        if(!player.stats.hasControl) return;
 
         //1.
-        double vectX = targetX - player.x;
-        double vectY = targetY - player.y;
+        double vectX = targetX - player.stats.x;
+        double vectY = targetY - player.stats.y;
 
         if(vectX == 0 && vectY == 0) {
             isActive = false;
@@ -53,10 +53,10 @@ public class ActionMove extends Action {
         double vectLen = Math.sqrt(vectX*vectX + vectY*vectY);
 
         //3. 4.
-        vectX = (vectX/vectLen) * (player.speed/ GlobalSettings.MAX_FPS);
-        vectY = (vectY/vectLen) * (player.speed/ GlobalSettings.MAX_FPS);
+        vectX = (vectX/vectLen) * (player.stats.speed/ GlobalSettings.MAX_FPS);
+        vectY = (vectY/vectLen) * (player.stats.speed/ GlobalSettings.MAX_FPS);
 
         //5.
-        room.players.get(playerHash).paramEffects.add(new EffectMove(room.players.get(playerHash), vectX, vectY));
+        player.paramEffects.add(new EffectMove(player, vectX, vectY));
     }
 }

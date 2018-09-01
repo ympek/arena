@@ -47,7 +47,7 @@ public class PlayerContext {
         this.stats = new ROPlayerStats(200, (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X),
                                                 (double)r.nextInt(GlobalSettings.MAP_SIZE_Y - GlobalSettings.PLAYER_SIZE_Y),
                                     100, true);
-        this.moveAction = new ActionMove(-1, null, this.stats, 0, 0,false);
+        this.moveAction = new ActionMove(-1, null, this, 0, 0,false);
 
         this.targetX = this.stats.x;
         this.targetY = this.stats.y;
