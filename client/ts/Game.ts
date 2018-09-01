@@ -19,11 +19,11 @@ declare const protocolProvider: ProtocolProvider
 
 var handleKeyPress = function (ev: KeyboardEvent) {
   switch (ev.keyCode) {
-    case 32: handleKeySpace(); break;
-    case 81: handleKeyQ(); break;
-    case 87: handleKeyW(); break;
-    case 69: handleKeyE(); break;
-    case 82: handleKeyR(); break;
+    case 32: handleKeySpace(ev); break;
+    case 81: handleKeyQ(ev); break;
+    case 87: handleKeyW(ev); break;
+    case 69: handleKeyE(ev); break;
+    case 82: handleKeyR(ev); break;
   }
 };
 
@@ -40,19 +40,19 @@ const handleKeySpace = function (ev) {
   });
 };
 
-const handleKeyQ = function () {
+const handleKeyQ = function (ev) {
   console.log('Handle Key: Q');
 };
 
-const handleKeyW = function () {
+const handleKeyW = function (ev) {
   console.log('Handle Key: W');
 };
 
-const handleKeyE = function () {
+const handleKeyE = function (ev) {
   console.log('Handle Key: E');
 };
 
-const handleKeyR = function () {
+const handleKeyR = function (ev) {
   console.log('Handle Key: R');
 };
 
