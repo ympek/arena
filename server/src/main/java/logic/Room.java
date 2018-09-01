@@ -73,7 +73,24 @@ public class Room implements Runnable {
                 MessageData intro = MessageBuilder.buildPlayerIntroInd(id, name, newPlayer.stats.x, newPlayer.stats.y, newPlayer.stats.health);
 
                 gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(response));
-                gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(intro));
+
+                //send new player info to all players
+                for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
+                    gameServer.sendToPlayer(entry.getKey(), protocolEncoder.encodeMessage(intro));
+
+                    //send to new player info about all the rest
+                    if(entry.getKey() != playerInfo.hash){
+                        MessageData intro4NewPlayer = MessageBuilder.buildPlayerIntroInd(
+                                entry.getValue().id,
+                                entry.getValue().name,
+                                entry.getValue().stats.x,
+                                entry.getValue().stats.y,
+                                entry.getValue().stats.health);
+                        gameServer.sendToPlayer(hash, protocolEncoder.encodeMessage(intro4NewPlayer));
+                    }
+                }
+
+
 
                 if(this.running == false) {
                     this.running = true;
