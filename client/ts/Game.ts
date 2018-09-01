@@ -2,12 +2,14 @@ import GraphicsEngine from './GraphicsEngine';
 import Config from './Config';
 import ProtocolProvider from './interface/ProtocolProvider';
 import Socket from './Socket';
+import IPoint from './interface/IPoint';
 
 // This is SUPER awkward, but... it's just first step to migrating to ts
 // so for now - OK. Change it!
 let ge: any;
 let sock: any;
-ge = GraphicsEngine();
+let canv = <HTMLCanvasElement>document.getElementById("arena-canvas");
+
 sock = Socket();
 // request anim frame bedzie wlasciwie tutaj
 // handloweanie keypressow tutaj
@@ -46,10 +48,31 @@ const handleKeyR = function () {
 };
 
 
+var getMousePos = function (evt: MouseEvent): IPoint {
+  var rect = canv.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
+
 const attachEventListeners = function () {
   window.onresize = ge.adjustCanvasToWindow;
   document.onkeydown = handleKeyPress;
-  // canvas.oncontextmenu = handleRightClick; // it is handled in GraphicsEngine - TODO make consistent
+  canv.oncontextmenu = function (ev) {
+    ev.preventDefault();
+    let mousePos = getMousePos(ev);
+    ge.handleRightClick(mousePos);
+    // oprocz tego send to socket
+    dispatchMessage(1, { // how can we make that they're not magic numbs
+      inputId: 3, // right click
+      absMouseCoordX: mousePos.x,
+      absMouseCoordY: mousePos.y
+    });
+  };
+
+
 };
 
 const DOMElements = {
@@ -65,7 +88,6 @@ var protocol;
 if (document.readyState === "complete") {
   console.log("Does it even");
   prepareGame();
-  attachEventListeners();
 } else {
   document.addEventListener("DOMContentLoaded", prepareGame);
   console.log("Does it even work?");
@@ -98,7 +120,8 @@ function prepareGame() { // to sie wykonuje 1st.
       name: val.trim()
     });
   };
-
+  ge = GraphicsEngine(canv);
+  attachEventListeners(); // korzysta z ge, moze to jakos ladniej sie da
   ge.run();
 }
 
@@ -160,21 +183,26 @@ interface WindowEventMap {
 function registerSocketListener() {
   document.addEventListener('data.received', function (ev: Event) {
     var msg = decodeByProtocol((<CustomEvent>ev).detail);
+    // dupny switch
     switch (msg._name) {
       case "loginAck":
         showArenaCanvas();
-        console.log("Handling loginAck: login successful. Msg: ", msg)
+        console.log("Handling loginAck: login successful. Msg: ", msg);
+        ge.saveCurrentPlayerId(msg.objectId);
+        // save userId for future use.
         break;
       case "loginRej":
         console.log("Login rejected. Error.", msg);
         break;
-      case "moveUpdateInd":
-        //console.log("move Update.", msg)
-        break;
       case "playerIntroInd":
+        // osluga tego msg bedzie polegac na
+        // dodaniu gracza do wewnetrznej listy graczy
+        // tylko kto ma trzymac se te liste? ge?
         console.log('Player introduction.', msg);
-        ge.addPlayer(msg.objectId, msg.positionX, msg.positionY);
-
+        ge.addPlayer(msg.objectId, msg.positionX, msg.positionY, msg.health);
+        break;
+      case "moveUpdateInd":
+        console.log("move Update.", msg.objectId);
         break;
       default:
         console.log("Unknown msg", msg);

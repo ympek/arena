@@ -1,41 +1,31 @@
-import Hero from './interface/Hero';
-import { movingAttr } from './interface/Hero';
+import { movingAttr } from './interface/IHero';
 import Animation from './interface/Animation';
+import Hero from './Hero';
 
 // important things from global scope
 // * window
 // * document
 // * console
 
-export default function GraphicsEngine() {
-    const canvas = <HTMLCanvasElement> document.getElementById("arena-canvas");
+export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElement) {
+    const canvas = canvasToAttachItselfTo;
     const ctx = canvas.getContext("2d")!;
-    
-    let playerHero : Hero = {
-        id: -1,
-        posX: 0,
-        posY: 0,
-        targetPosX: 0,
-        targetPosY: 0,
-        isMoving: false,
-        velocityX: 0,
-        velocityY: 0,
-        draw: () => {},
-        movingAttr: {
-            moveX: () => {},
-            moveY: () => {}
-        } 
-    };
 
-    let activeAnimations : Animation[] = [];
+    let currentPlayerId = -1;
 
-    var players = [];
+    let heroes: Hero[] = [];
+
+    let activeAnimations: Animation[] = [];
 
     // FPS section
     let currFps = 0;
     let frameCount = 0;
     let timeToUpdateFps = false;
-   
+
+    const getCurrentHero = function () {
+        return heroes[0];
+    };
+
     const drawFps = function () {
         ctx.fillStyle = "blue";
         ctx.font = "30px Arial";
@@ -83,17 +73,16 @@ export default function GraphicsEngine() {
         loadImages(); // or load assets?
         triggerFpsUpdate();
         // Come on, start the machine!
-        canvas.oncontextmenu = handleRightClick;
         window.requestAnimationFrame(tick);
     };
 
 
     const loadImages = function () {
         // this is to change TODO
-        let image = <HTMLImageElement> document.getElementById('bg00');
+        let image = <HTMLImageElement>document.getElementById('bg00');
         console.log("Duh", image);
         image.onload = function () {
-            console.log("Background loaded.");
+            console.log("Background loaded. Could not be visible, cant find out why.");
             bg.loaded = true;
         };
         // create a generic loader for images. (later)
@@ -105,30 +94,33 @@ export default function GraphicsEngine() {
     };
 
     var updatePlayer = function () {
-        if (playerHero.isMoving) {
-            playerHero.movingAttr.moveX();
-            playerHero.movingAttr.moveY();
+        if (heroes[0].isMoving) {
+            heroes[0].movingAttr.moveX();
+            heroes[0].movingAttr.moveY();
             // i sprawdzanie konca
-
         }
     };
 
     var tick = function () {
         // w sumie od arka bede mial zawsze dokladna pozycje - nie porzebuje
         // velocity i tym podobnych - to jest dobrze.
-        ++frameCount;
+        if (heroes[0]) {
+            ++frameCount;
 
-        // draw bg
-        if (bg.loaded) {
-            ctx.drawImage(<HTMLImageElement> document.getElementById('bg00'), 0, 0);
+            // draw bg
+            if (bg.loaded) {
+                ctx.drawImage(<HTMLImageElement>document.getElementById('bg00'), 0, 0);
+            }
+
+            heroes.forEach((hero) => {
+                hero.draw();
+            })
+
+            updatePlayer();
+            updateAnimations();
+
+            updateAndDrawFps();
         }
-
-        playerHero.draw();
-
-        updatePlayer();
-        updateAnimations();
-
-        updateAndDrawFps();
 
         window.requestAnimationFrame(tick);
     };
@@ -139,12 +131,10 @@ export default function GraphicsEngine() {
             anim.framesTillDone--;
             if (anim.framesTillDone <= 0) {
                 // delete does not reorder elements or update length. I think i want this, but not sure.
-                delete activeAnimations[index]; 
+                delete activeAnimations[index];
             }
         });
     };
-
-
 
     var playClickAnimation = function (posX, posY) {
         // so this is animation like in Warcraft
@@ -166,95 +156,110 @@ export default function GraphicsEngine() {
         });
     };
 
-    const noop = function () {};
+    const noop = function () { };
 
-    
-    var handleRightClick = function (ev) {
-        ev.preventDefault();
+
+    var handleRightClick = function (mousePos) {
         console.log("right click");
-        var mousePos = getMousePos(ev);
 
         playClickAnimation(mousePos.x, mousePos.y);
 
-        playerHero.targetPosX = mousePos.x;
-        playerHero.targetPosY = mousePos.y;
+        heroes[0].targetPosX = mousePos.x;
+        heroes[0].targetPosY = mousePos.y;
 
-        playerHero.isMoving = true; // is this bool neccessary 
+        heroes[0].isMoving = true; // is this bool neccessary 
 
-        var movingAttr : movingAttr = {
+        var movingAttr: movingAttr = {
             moveX: noop,
             moveY: noop
         }; // wektor
-        var tx = playerHero.targetPosX - playerHero.posX;
-        var ty = playerHero.targetPosY - playerHero.posY;
+        var tx = heroes[0].targetPosX - heroes[0].posX;
+        var ty = heroes[0].targetPosY - heroes[0].posY;
         var distance = Math.sqrt(tx * tx + ty * ty);
         var thrust = 3;
-        playerHero.velocityX = (tx / distance) * thrust;
-        playerHero.velocityY = (ty / distance) * thrust;
-        if (playerHero.posX > playerHero.targetPosX) {
+        heroes[0].velocityX = (tx / distance) * thrust;
+        heroes[0].velocityY = (ty / distance) * thrust;
+        if (heroes[0].posX > heroes[0].targetPosX) {
 
             movingAttr.moveX = function () {
-                playerHero.posX += playerHero.velocityX;
+                heroes[0].posX += heroes[0].velocityX;
 
-                if (playerHero.posX <= playerHero.targetPosX) {
-                    playerHero.isMoving = false;
+                if (heroes[0].posX <= heroes[0].targetPosX) {
+                    heroes[0].isMoving = false;
                 }
             }
-        } else if (playerHero.posX < playerHero.targetPosX) {
+        } else if (heroes[0].posX < heroes[0].targetPosX) {
 
             movingAttr.moveX = function () {
-                playerHero.posX += playerHero.velocityX;
-                if (playerHero.posX >= playerHero.targetPosX) {
-                    playerHero.isMoving = false;
+                heroes[0].posX += heroes[0].velocityX;
+                if (heroes[0].posX >= heroes[0].targetPosX) {
+                    heroes[0].isMoving = false;
                 }
             }
         }
+
         //y
-        if (playerHero.posY > playerHero.targetPosY) {
+        if (heroes[0].posY > heroes[0].targetPosY) {
 
             movingAttr.moveY = function () {
-                playerHero.posY += playerHero.velocityY;
-                if (playerHero.posY <= playerHero.targetPosY) {
-                    playerHero.isMoving = false;
+                heroes[0].posY += heroes[0].velocityY;
+                if (heroes[0].posY <= heroes[0].targetPosY) {
+                    heroes[0].isMoving = false;
                 }
             }
-        } else if (playerHero.posY < playerHero.targetPosY) {
+        } else if (heroes[0].posY < heroes[0].targetPosY) {
             movingAttr.moveY = function () {
 
-                playerHero.posY += playerHero.velocityY;
-                if (playerHero.posY >= playerHero.targetPosY) {
-                    playerHero.isMoving = false;
+                heroes[0].posY += heroes[0].velocityY;
+                if (heroes[0].posY >= heroes[0].targetPosY) {
+                    heroes[0].isMoving = false;
                 }
             }
         }
 
-        playerHero.movingAttr = movingAttr;
+        heroes[0].movingAttr = movingAttr;
     };
 
-    var getMousePos = function (evt) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-        };
-    }
-
-    var addPlayer = function (id : number, posX : number, posY : number) {
+    var addPlayer = function (id: number, posX: number, posY: number, health: number) {
         console.log('Adding player at position: ', posX, posY);
-        playerHero.id = id;
-        playerHero.posX = posX;
-        playerHero.posY = posY;
+
+        console.log("porownanie idkow:", id, currentPlayerId);
+
+        let newHero = new Hero(id, posX, posY, health);
 
         // adding draw function:
-        playerHero.draw = function(this: Hero) {
+        newHero.draw = function (this: Hero) {
             ctx.fillStyle = 'magenta';
             ctx.fillRect(this.posX, this.posY, 32, 32);
         };
+
+        if (id === currentPlayerId) {
+            // needs to be on players[0]
+            if (heroes.length === 0) {
+                heroes.push(newHero);
+                console.log('no co pushuje i co');
+                console.log(heroes.length);
+            } else {
+                heroes.unshift(newHero);
+                console.log('co mam shiftowac?');
+                console.log(heroes.length);
+            }
+        }
+    };
+
+    const saveCurrentPlayerId = function (id: number) {
+        if (currentPlayerId == -1) {
+            currentPlayerId = id;
+        } else {
+            console.error("Current player was set up already!");
+        }
     };
 
     return {
         run: run,
         addPlayer: addPlayer,
-        adjustCanvasToWindow: adjustCanvasToWindow
+        adjustCanvasToWindow: adjustCanvasToWindow,
+        saveCurrentPlayerId: saveCurrentPlayerId,
+        handleRightClick: handleRightClick
     }
 }
