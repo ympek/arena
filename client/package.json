@@ -15,9 +15,15 @@
   "homepage": "https://github.com/ympek/arena#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "inject_protocol": "node util/inject_protocol.js",
     "compile": "node node_modules/typescript/bin/tsc",
-    "minify": "node node_modules/node-minify/bin/cli -i dist/**/*.js -o arena.min.js",
-    "build": "npm run compile && npm run minify"
+    "concat": "node node_modules/node-minify/bin/cli --compressor no-compress -i dist/**/*.js -o arena.js",
+    "minify": "node node_modules/node-minify/bin/cli -i dist/**/*.js -o arena.js",
+    "concat_with_protocol": "node node_modules/node-minify/bin/cli --compressor no-compress -i dist/outfiles/*.js -o arena.js",
+    "minify_with_protocol": "node node_modules/node-minify/bin/cli -i dist/outfiles/*.js -o arena.js",
+    "browserify": "node node_modules/browserify/bin/cmd.js ./dist/Game.js -o ./dist/outfiles/arena.browserified.js",
+    "build_debug": "npm run compile && npm run browserify && npm run inject_protocol && npm run concat_with_protocol",
+    "build_release": "npm run compile && npm run browserify && npm run inject_protocol && npm run minify_with_protocol"
   },
   "devDependencies": {
     "jshint": "^2.9.5",
@@ -33,5 +39,7 @@
       "MY_GLOBAL": true
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "browserify": "^16.2.2"
+  }
 }

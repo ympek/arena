@@ -1,22 +1,31 @@
 import Hero from './interface/Hero';
 import { movingAttr } from './interface/Hero';
+import Animation from './interface/Animation';
 
 // important things from global scope
 // * window
 // * document
 // * console
 
-interface Animation {
-    id : string,
-    framesTillDone: number,
-    draw: () => void
-}
-
 export default function GraphicsEngine() {
     const canvas = <HTMLCanvasElement> document.getElementById("arena-canvas");
     const ctx = canvas.getContext("2d")!;
     
-    let playerHero : Hero;
+    let playerHero : Hero = {
+        id: -1,
+        posX: 0,
+        posY: 0,
+        targetPosX: 0,
+        targetPosY: 0,
+        isMoving: false,
+        velocityX: 0,
+        velocityY: 0,
+        draw: () => {},
+        movingAttr: {
+            moveX: () => {},
+            moveY: () => {}
+        } 
+    };
 
     let activeAnimations : Animation[] = [];
 
@@ -55,6 +64,15 @@ export default function GraphicsEngine() {
     var bg = {
         loaded: false
     };
+    var adjustCanvasToWindow = function () {
+        console.log("handleResize");
+        // TODO: implement.
+        var CANVAS_W = document.body.clientWidth;
+        var CANVAS_H = document.body.clientHeight;
+        canvas.width = CANVAS_W;
+        canvas.height = CANVAS_H;
+
+    };
 
     const run = function () {
         console.log("Running!");
@@ -63,25 +81,27 @@ export default function GraphicsEngine() {
         // dont really know how to solve this properly,
         // i need a loader of some kind.
         loadImages(); // or load assets?
-        attachEventListeners();
         triggerFpsUpdate();
         // Come on, start the machine!
+        canvas.oncontextmenu = handleRightClick;
         window.requestAnimationFrame(tick);
     };
 
-    const attachEventListeners = function () {
-        window.onresize = adjustCanvasToWindow;
-        document.onkeydown = handleKeyPress;
-        canvas.oncontextmenu = handleRightClick;
-    };
 
     const loadImages = function () {
         // this is to change TODO
-        var image = document.getElementById('bg00')!;
+        let image = <HTMLImageElement> document.getElementById('bg00');
         console.log("Duh", image);
         image.onload = function () {
+            console.log("Background loaded.");
             bg.loaded = true;
         };
+        // create a generic loader for images. (later)
+        // need to check 'complete' property which is true if image is fetched.
+        // because i might add onload later and there we have problem.
+        if (image.complete) {
+            bg.loaded = true;
+        }
     };
 
     var updatePlayer = function () {
@@ -94,6 +114,8 @@ export default function GraphicsEngine() {
     };
 
     var tick = function () {
+        // w sumie od arka bede mial zawsze dokladna pozycje - nie porzebuje
+        // velocity i tym podobnych - to jest dobrze.
         ++frameCount;
 
         // draw bg
@@ -122,15 +144,7 @@ export default function GraphicsEngine() {
         });
     };
 
-    var adjustCanvasToWindow = function () {
-        console.log("handleResize");
-        // TODO: implement.
-        var CANVAS_W = document.body.clientWidth;
-        var CANVAS_H = document.body.clientHeight;
-        canvas.width = CANVAS_W;
-        canvas.height = CANVAS_H;
 
-    };
 
     var playClickAnimation = function (posX, posY) {
         // so this is animation like in Warcraft
@@ -154,6 +168,7 @@ export default function GraphicsEngine() {
 
     const noop = function () {};
 
+    
     var handleRightClick = function (ev) {
         ev.preventDefault();
         console.log("right click");
@@ -224,14 +239,22 @@ export default function GraphicsEngine() {
         };
     }
 
-    var addPlayer = function (posX, posY) {
+    var addPlayer = function (id : number, posX : number, posY : number) {
         console.log('Adding player at position: ', posX, posY);
+        playerHero.id = id;
         playerHero.posX = posX;
         playerHero.posY = posY;
+
+        // adding draw function:
+        playerHero.draw = function(this: Hero) {
+            ctx.fillStyle = 'magenta';
+            ctx.fillRect(this.posX, this.posY, 32, 32);
+        };
     };
 
     return {
         run: run,
-        addPlayer: addPlayer
+        addPlayer: addPlayer,
+        adjustCanvasToWindow: adjustCanvasToWindow
     }
 }

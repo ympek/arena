@@ -13,7 +13,7 @@ interface BinarizeFunction {
     (size : number, value : any) : MessageFragment
 }
 
-var Socket = (function() {
+export default function Socket() {
     let sock;
   
     var establishConnection = function(addr) {
@@ -27,6 +27,7 @@ var Socket = (function() {
       };
   
       sock.onmessage = function(ev) {
+        //console.log('REceived data from server. Details:', ev.data)
         var newEv = new CustomEvent('data.received', {
           detail: ev.data
         });
@@ -37,11 +38,12 @@ var Socket = (function() {
   
     var send = function(messageId : number, paramsArray : any[]) {
       var buf : ArrayBuffer = encode(messageId, paramsArray);
-  
+      console.log("Trying to send message");
       if (buf.constructor !== ArrayBuffer) {
         console.error("Failed to encode message. Message not sent.");
       } else {
         sock.send(buf);
+      console.log("Message shoulbe send.");
       }
     }
   
@@ -49,7 +51,7 @@ var Socket = (function() {
       establishConnection: establishConnection,
       send: send
     };
-  })();
+  };
   
   // Encoder Stuff
   

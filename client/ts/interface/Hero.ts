@@ -4,6 +4,7 @@ export interface movingAttr {
 }
 
 export default interface Hero {
+    id: number,
     posX: number,
     posY: number,
     targetPosX: number

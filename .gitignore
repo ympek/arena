@@ -7,7 +7,8 @@ tags
 
 # client stuff
 client/node_modules
-client/all.js
+# this is dist file, generated from ts. Do not commit.
+client/arena.js
 # this is generated from placeholder
 client/js/ProtocolProvider.js
 
@@ -18,3 +19,5 @@ server/bin
 server/.settings
 server/.classpath
 server/.project
+
+dist/
