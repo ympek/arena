@@ -82,7 +82,7 @@ const attachEventListeners = function () {
     });
   };
 
-  canv.onmouseover = function (ev) {
+  canv.onmousemove = function (ev) {
     currMousePos = getMousePos(ev);
   }
 };
