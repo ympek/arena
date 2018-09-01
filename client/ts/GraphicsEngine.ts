@@ -94,11 +94,11 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
     };
 
     var updatePlayer = function () {
-        if (heroes[0].isMoving) {
-            heroes[0].movingAttr.moveX();
-            heroes[0].movingAttr.moveY();
-            // i sprawdzanie konca
-        }
+        // if (heroes[0].isMoving) {
+        //     heroes[0].movingAttr.moveX();
+        //     heroes[0].movingAttr.moveY();
+        //     // i sprawdzanie konca
+        // }
     };
 
     var tick = function () {
@@ -244,6 +244,8 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
                 console.log('co mam shiftowac?');
                 console.log(heroes.length);
             }
+        } else {
+            heroes.push(newHero);
         }
     };
 
@@ -255,11 +257,43 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         }
     };
 
+    const updatePlayerPosition = function(
+        id: number, 
+        posX: number, 
+        posY: number,
+        targetPosX: number,
+        targetPosY: number,
+        speed: number 
+    ) {
+        // first we need to find proper player idx.
+        let i : number = -1;
+        for (let hero of heroes) {
+            if (hero.id === id) {
+                i = id;
+                break;
+            }
+        }
+
+        // our player is heroes[i]. now lets continue
+        if (i === -1) {
+            console.error("WRong hero ID.")
+        } else {
+            heroes[i].posX = posX;
+            heroes[i].posY = posY;
+            heroes[i].targetPosX = targetPosX;
+            heroes[i].targetPosY = targetPosY;
+            // speed??!!?
+        }
+
+        return true;
+    };
+
     return {
         run: run,
         addPlayer: addPlayer,
         adjustCanvasToWindow: adjustCanvasToWindow,
         saveCurrentPlayerId: saveCurrentPlayerId,
-        handleRightClick: handleRightClick
+        handleRightClick: handleRightClick,
+        updatePlayerPosition: updatePlayerPosition
     }
 }

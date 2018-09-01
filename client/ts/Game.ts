@@ -202,7 +202,15 @@ function registerSocketListener() {
         ge.addPlayer(msg.objectId, msg.positionX, msg.positionY, msg.health);
         break;
       case "moveUpdateInd":
-        console.log("move Update.", msg.objectId);
+        console.log("move Update.", );
+        ge.updatePlayerPosition(
+          msg.objectId,
+          msg.absPositionCoordX,
+          msg.absPositionCoordY,
+          msg.absTargetCoordX,
+          msg.absTargetCoordY,
+          msg.objectSpeed
+        );
         break;
       default:
         console.log("Unknown msg", msg);
