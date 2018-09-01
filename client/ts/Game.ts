@@ -31,7 +31,6 @@ const handleKeySpace = function (ev) {
   ev.preventDefault();
   console.log('Handle Key: Space');
   let mousePos = getMousePos(ev);
-  ge.handleRightClick(mousePos);
   // oprocz tego send to socket
   dispatchMessage(1, {
     inputId: 1, // space
