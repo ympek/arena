@@ -127,7 +127,9 @@ public class Room implements Runnable {
                     if(!player.stats.hasControl) return;
                     player.targetX = messageData.getDoubleParameter("absMouseCoordX").getValue();
                     player.targetY = messageData.getDoubleParameter("absMouseCoordY").getValue();
-                    player.actions.add(new ActionMove(hash, this, player.targetX, player.targetY));
+                    player.moveAction.isActive = true;
+                    player.moveAction.targetX = player.targetX;
+                    player.moveAction.targetY = player.targetY;
                     GlobalSettings.print("Player "+ player.name +" target: X = " + player.targetX + "; target Y = " + player.targetY);
                 }
                 else if(messageData.getIntegerParameter("inputId").getValue() == 1){
@@ -182,7 +184,7 @@ public class Room implements Runnable {
 
             // execute move for each player
             for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
-                if(entry.getValue().moveAction != null){
+                if(entry.getValue().moveAction.isActive){
                     entry.getValue().moveAction.execute();
                 }
             }
@@ -191,10 +193,6 @@ public class Room implements Runnable {
                 for(Map.Entry<Integer, PlayerContext> entry : players.entrySet()){
                     //remove dead actions
                     entry.getValue().actions.removeIf(action -> !action.isAlive);
-                    if (entry.getValue().moveAction != null) {
-                        if(!entry.getValue().moveAction.isAlive)
-                          entry.getValue().moveAction = null;
-                    }
                     //execute status effects for each player and clear effect list
                     Iterator<Effect> sEffectIterator = entry.getValue().statusEffects.iterator();
                     while(sEffectIterator.hasNext()){

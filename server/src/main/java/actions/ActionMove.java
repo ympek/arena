@@ -2,6 +2,7 @@ package actions;
 
 import logic.GlobalSettings;
 import logic.Room;
+import playerData.PlayerContext;
 import playerData.ROPlayerStats;
 
 /**
@@ -9,14 +10,16 @@ import playerData.ROPlayerStats;
  */
 public class ActionMove extends Action {
 
-    private double targetX;
-    private double targetY;
+    public double targetX;
+    public double targetY;
+    private ROPlayerStats player;
 
-    public ActionMove(int hash, Room room, double targetX, double targetY){
+    public ActionMove(int hash, Room room, ROPlayerStats player, double targetX, double targetY, boolean isActive){
         super(hash, room);
+        this.player = player;
         this.targetX = targetX;
         this.targetY = targetY;
-        this.isActive = true;
+        this.isActive = isActive;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class ActionMove extends Action {
         // 5. Dodajemy do pozycji
         //==============================================================================================================
 
-        ROPlayerStats player = room.playersActionStats.get(playerHash);
+        //ROPlayerStats player = room.playersActionStats.get(playerHash);
 
         if(!player.hasControl) return;
 
