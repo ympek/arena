@@ -220,15 +220,33 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         heroes[0].movingAttr = movingAttr;
     };
 
-    const getRandomColorHex = function () {
-        var options = "0123456789ABCDEF";
-        var ret = "#";
-        while (ret.length < 7) {
-            // losujmy miedzy 0 a 15
-            var num = Math.floor(Math.random() * 16 - 1);
-            ret += options[num];
-        }
-        return ret;
+    // const getRandomColorHex = function () {
+    //     var options = "0123456789ABCDEF";
+    //     var ret = "#";
+    //     while (ret.length < 7) {
+    //         // losujmy miedzy 0 a 15
+    //         var num = Math.floor(Math.random() * 16 - 1);
+    //         ret += options[num];
+    //     }
+    //     return ret;
+    // };
+
+    let colors = [
+        'magenta',
+        'cyan',
+        'orange',
+        'wheat',
+        'slateblue',
+        'mistyrose',
+        'linen',
+        'lavender',
+        'hotpink',
+        'gold',
+        'black'
+    ];
+
+    const getColor = function (i : number) {
+        return colors[i];
     };
 
     var addPlayer = function (id: number, posX: number, posY: number, health: number) {
@@ -238,24 +256,22 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
 
         let newHero = new Hero(id, posX, posY, health);
 
-        let color = getRandomColorHex();
+        let color = getColor(id);
 
         // adding draw function:
         newHero.draw = function (this: Hero) {
-            ctx.fillStyle = color;
-            ctx.fillRect(this.posX, this.posY, 32, 32);
+            if (this.posX !== -1) {
+                ctx.fillStyle = color;
+                ctx.fillRect(this.posX-16, this.posY-16, 32, 32);
+            }
         };
 
         if (id === currentPlayerId) {
             // needs to be on players[0]
             if (heroes.length === 0) {
                 heroes.push(newHero);
-                console.log('no co pushuje i co');
-                console.log(heroes.length);
             } else {
                 heroes.unshift(newHero);
-                console.log('co mam shiftowac?');
-                console.log(heroes.length);
             }
         } else {
             heroes.push(newHero);
