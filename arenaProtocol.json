@@ -99,14 +99,14 @@
             "size": 64,
             "type": "double"
           },
-		  {
-			"name": "health",
-			"size": 32,
-			"type": "int"
-		  }
+          {
+            "name": "health",
+            "size": 32,
+            "type": "int"
+          }
         ]
       },
-	  {
+      {
         "messageName": "playerIntroInd",
         "messageParameters": [
           {
@@ -136,16 +136,16 @@
           }
         ]
       },
-	  {
-		"messageName": "playerLogoutInd",
-		"messageParameters": [
-			{
-				"name": "objectId",
-				"size": 8,
-				"type": "int"
-			}
-		]
-	  }
+      {
+        "messageName": "playerLogoutInd",
+        "messageParameters": [
+          {
+            "name": "objectId",
+            "size": 8,
+            "type": "int"
+          }
+        ]
+      }
     ]
   }
 }

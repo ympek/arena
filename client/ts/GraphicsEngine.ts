@@ -250,6 +250,13 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
             if (this.posX !== -1) {
                 ctx.fillStyle = color;
                 ctx.fillRect(this.posX-16, this.posY-16, 32, 32);
+                // health jest od 0 do 200;
+                // health/4 ==> od 0 do 50;
+                ctx.fillStyle = 'red';
+                ctx.fillRect(this.posX-48, this.posY-48, 50, 10);
+
+                ctx.fillStyle = 'green';
+                ctx.fillRect(this.posX-48, this.posY-48, this.health/4, 10);
             }
         };
 
