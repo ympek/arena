@@ -102,7 +102,7 @@
 		  {
 			"name": "health",
 			"size": 32,
-			"type": "int",
+			"type": "int"
 		  }
         ]
       },

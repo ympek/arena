@@ -233,7 +233,7 @@ public class Room implements Runnable {
                     //==================================================================================================
                     ByteBuffer messageBuf = protocolEncoder.encodeMessage(MessageBuilder.buildMoveUpdateInd(
                             entry.getValue().id, entry.getValue().stats.x, entry.getValue().stats.y,
-                            entry.getValue().targetX, entry.getValue().targetY, entry.getValue().stats.speed));
+                            entry.getValue().targetX, entry.getValue().targetY, entry.getValue().stats.speed, entry.getValue().stats.health));
 
                     for(Map.Entry<Integer, PlayerContext> other : players.entrySet()){
                         gameServer.sendToPlayer(other.getKey(), messageBuf);

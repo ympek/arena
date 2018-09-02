@@ -26,7 +26,7 @@ public final class MessageBuilder {
     }
 
     static final MessageData buildMoveUpdateInd(int objectId, double absPositionCoordX, double absPositionCoordY,
-                                            double absTargetCoordX, double absTargetCoordY, double objectSpeed){
+                                            double absTargetCoordX, double absTargetCoordY, double objectSpeed, int health){
         
         MessageData response = new MessageData(2, "moveUpdateInd");
 
@@ -36,6 +36,7 @@ public final class MessageBuilder {
         response.addParameter("absTargetCoordX", absTargetCoordX);
         response.addParameter("absTargetCoordY", absTargetCoordY);
         response.addParameter("objectSpeed", objectSpeed);
+        response.addParameter("health", health);
 
         return response;
     }
