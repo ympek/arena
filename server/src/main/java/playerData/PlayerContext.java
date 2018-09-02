@@ -23,6 +23,8 @@ public class PlayerContext {
     public LinkedList<Effect> statusEffects;
     public LinkedList<Effect> paramEffects;
 
+    public long respawnTime;
+
     // Synchronized -> dane zapisywane przez główny wątek
     public double targetX;
     public double targetY;
@@ -44,6 +46,7 @@ public class PlayerContext {
         this.statusEffects = new LinkedList<>();
         this.paramEffects = new LinkedList<>();
 
+        this.respawnTime = 0;
 
         Random r = new Random();
         this.stats = new ROPlayerStats(200, (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X),
@@ -63,6 +66,21 @@ public class PlayerContext {
             GlobalSettings.print("Player " + name + " position: x = " + stats.x + "; y = " + stats.y);
         }
 
+    }
+
+    public void respawn(){
+        Random r = new Random();
+        this.isAlive = true;
+        this.stats.health = 200;
+        this.stats.speed = 200;
+        this.stats.x = (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X);
+        this.stats.y = (double)r.nextInt(GlobalSettings.MAP_SIZE_Y - GlobalSettings.PLAYER_SIZE_Y);
+
+        this.targetX = this.stats.x;
+        this.targetY = this.stats.y;
+
+        this.prevPosX = this.stats.x;
+        this.prevPosY = this.stats.y;
     }
 }
 

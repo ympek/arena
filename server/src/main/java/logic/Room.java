@@ -129,9 +129,9 @@ public class Room implements Runnable {
             PlayerContext player = players.get(hash);
             synchronized (player) {
                 if (messageData.getIntegerParameter("inputId").getValue() == 3){
-                    if(!player.stats.hasControl) return;
                     player.targetX = messageData.getDoubleParameter("absMouseCoordX").getValue();
                     player.targetY = messageData.getDoubleParameter("absMouseCoordY").getValue();
+                    if(!player.stats.hasControl) return;
                     player.moveAction.isActive = true;
                     player.moveAction.targetX = player.targetX;
                     player.moveAction.targetY = player.targetY;
@@ -220,10 +220,14 @@ public class Room implements Runnable {
 
                     //==================================================================================================
                     //check if dead
-                    if(entry.getValue().stats.health <= 0){
+                    if(entry.getValue().isAlive && entry.getValue().stats.health <= 0){
                         entry.getValue().isAlive = false;
                         entry.getValue().stats.x = -1;
                         entry.getValue().stats.y = -1;
+                        entry.getValue().respawnTime = System.currentTimeMillis() + 30*1000;
+                    }
+                    if(!entry.getValue().isAlive && entry.getValue().respawnTime >= System.currentTimeMillis()){
+                        entry.getValue().respawn();
                     }
                     //make parameters and movement validation
                     //==================================================================================================

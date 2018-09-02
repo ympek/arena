@@ -98,7 +98,12 @@
             "name": "objectSpeed",
             "size": 64,
             "type": "double"
-          }
+          },
+		  {
+			"name": "health",
+			"size": 32,
+			"type": "int",
+		  }
         ]
       },
 	  {
