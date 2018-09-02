@@ -127,6 +127,7 @@ public class Room implements Runnable {
     void handleMessage(int hash, MessageData messageData){
         if(messageData.getMessageId() == 1) { //actionInd
             PlayerContext player = players.get(hash);
+            if(!player.isAlive) return;
             synchronized (player) {
                 if (messageData.getIntegerParameter("inputId").getValue() == 3){
                     player.targetX = messageData.getDoubleParameter("absMouseCoordX").getValue();
@@ -222,10 +223,7 @@ public class Room implements Runnable {
                     //==================================================================================================
                     //check if dead
                     if(entry.getValue().isAlive && entry.getValue().stats.health <= 0){
-                        entry.getValue().isAlive = false;
-                        entry.getValue().stats.x = -1;
-                        entry.getValue().stats.y = -1;
-                        entry.getValue().respawnTime = System.currentTimeMillis() + 30*1000;
+                        entry.getValue().kill();
                     }
                     else if(!entry.getValue().isAlive && entry.getValue().respawnTime <= System.currentTimeMillis()){
                         entry.getValue().respawn();
