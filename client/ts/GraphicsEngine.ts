@@ -257,6 +257,12 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
 
                 ctx.fillStyle = 'green';
                 ctx.fillRect(this.posX-48, this.posY-48, this.health/4, 10);
+            } else {
+                if (currentPlayerId == this.id) {
+                    ctx.font="80px Consolas";
+                    ctx.fillStyle = 'red';
+                    ctx.fillText("YOU DIEDEDED", 500, 300); 
+                }
             }
         };
 
