@@ -6,6 +6,7 @@ public final class GlobalSettings {
     public static final int ROOM_SIZE = 10;
     public static final int ROOM_MAX_AMOUNT = 1;
     public static final int MAX_FPS = 30;
+    public static final int RESPAWN_TIME = 10;
 
 
     public static final int MAP_SIZE_X = 1960;

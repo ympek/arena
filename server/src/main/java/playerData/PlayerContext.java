@@ -76,7 +76,7 @@ public class PlayerContext {
         this.stats.hasControl = false;
         this.stats.x = -1;
         this.stats.y = -1;
-        this.respawnTime = System.currentTimeMillis() + 30*1000;
+        this.respawnTime = System.currentTimeMillis() + GlobalSettings.RESPAWN_TIME*1000;
         this.moveAction.isActive = false;
     }
 
