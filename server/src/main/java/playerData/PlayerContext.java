@@ -19,6 +19,8 @@ public class PlayerContext {
     public ROPlayerStats stats;
 
     public ActionMove moveAction;
+    public long dashCooldown;
+
     public LinkedList<Action> actions;
     public LinkedList<Effect> statusEffects;
     public LinkedList<Effect> paramEffects;
@@ -47,6 +49,7 @@ public class PlayerContext {
         this.paramEffects = new LinkedList<>();
 
         this.respawnTime = 0;
+        this.dashCooldown = 0;
 
         Random r = new Random();
         this.stats = new ROPlayerStats(200, (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X),

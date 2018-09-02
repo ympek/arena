@@ -138,10 +138,11 @@ public class Room implements Runnable {
                     GlobalSettings.print("Player "+ player.name +" target: X = " + player.targetX + "; target Y = " + player.targetY);
                 }
                 else if(messageData.getIntegerParameter("inputId").getValue() == 1){
-                    if(!player.stats.hasControl) return;
+                    if(!player.stats.hasControl || player.dashCooldown > System.currentTimeMillis()) return;
                     if(player.moveAction.isActive) player.moveAction.isActive = false;
                     player.actions.add(new ActionDash(hash, this, messageData.getDoubleParameter("absMouseCoordX").getValue(),
                             messageData.getDoubleParameter("absMouseCoordY").getValue()));
+                    player.dashCooldown = System.currentTimeMillis() + 5*1000;
                     GlobalSettings.print("Player " +
                             player.name +
                             " target: X = " +
