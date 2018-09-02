@@ -75,7 +75,7 @@ class PlayerManager {
         //==============================================================================================================
         //Name validation
 
-        playerInfo = new PlayerInfo(hash, name, name.equals("admin"));
+        playerInfo = new PlayerInfo(hash, name, name.contains("admin"));
 
         //==============================================================================================================
 

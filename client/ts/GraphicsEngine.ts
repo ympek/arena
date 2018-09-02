@@ -279,6 +279,7 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
     };
 
     const saveCurrentPlayerId = function (id: number) {
+        console.log("Login ack - current player id: ", id);
         if (currentPlayerId == -1) {
             currentPlayerId = id;
         } else {
