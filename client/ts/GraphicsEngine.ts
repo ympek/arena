@@ -141,7 +141,7 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         // three arrows or sth. Show the target point for a while.
         // its actually enqueue this animation.
         ctx.fillStyle = 'green';
-        ctx.fillRect(posX, posY, 32, 32);
+        ctx.fillRect(posX-16, posY-16, 32, 32);
 
         activeAnimations.push({
             id: 'clickTarget',
@@ -150,7 +150,7 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
                 // console.log('fr', this.framesTillDone)
                 ctx.fillStyle = 'green';
                 if (this.framesTillDone % 4 == 0) {
-                    ctx.fillRect(posX, posY, 32, 32);
+                    ctx.fillRect(posX-16, posY-16, 32, 32);
                 }
             }
         });
@@ -220,17 +220,6 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         heroes[0].movingAttr = movingAttr;
     };
 
-    // const getRandomColorHex = function () {
-    //     var options = "0123456789ABCDEF";
-    //     var ret = "#";
-    //     while (ret.length < 7) {
-    //         // losujmy miedzy 0 a 15
-    //         var num = Math.floor(Math.random() * 16 - 1);
-    //         ret += options[num];
-    //     }
-    //     return ret;
-    // };
-
     let colors = [
         'magenta',
         'cyan',
@@ -251,8 +240,6 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
 
     var addPlayer = function (id: number, posX: number, posY: number, health: number) {
         console.log('Adding player at position: ', posX, posY);
-
-        console.log("porownanie idkow:", id, currentPlayerId);
 
         let newHero = new Hero(id, posX, posY, health);
 
