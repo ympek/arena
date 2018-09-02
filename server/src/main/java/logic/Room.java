@@ -140,7 +140,8 @@ public class Room implements Runnable {
                 else if(messageData.getIntegerParameter("inputId").getValue() == 1){
                     if(!player.stats.hasControl) return;
                     if(player.moveAction.isActive) player.moveAction.isActive = false;
-                    player.actions.add(new ActionDash(hash, this, player.targetX, player.targetY));
+                    player.actions.add(new ActionDash(hash, this, messageData.getDoubleParameter("absMouseCoordX").getValue(),
+                            messageData.getDoubleParameter("absMouseCoordY").getValue()));
                     GlobalSettings.print("Player " +
                             player.name +
                             " target: X = " +
