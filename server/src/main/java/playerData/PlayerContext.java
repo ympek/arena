@@ -71,9 +71,19 @@ public class PlayerContext {
 
     }
 
+    public void kill(){
+        this.isAlive = false;
+        this.stats.hasControl = false;
+        this.stats.x = -1;
+        this.stats.y = -1;
+        this.respawnTime = System.currentTimeMillis() + 30*1000;
+        this.moveAction.isActive = false;
+    }
+
     public void respawn(){
         Random r = new Random();
         this.isAlive = true;
+        this.stats.hasControl = true;
         this.stats.health = 200;
         this.stats.speed = 200;
         this.stats.x = (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X);
