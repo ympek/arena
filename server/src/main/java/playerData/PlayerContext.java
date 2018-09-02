@@ -14,6 +14,7 @@ public class PlayerContext {
     public String name;
     public boolean vip;
     public boolean ready;
+    public boolean isAlive;
 
     public ROPlayerStats stats;
 
@@ -35,6 +36,7 @@ public class PlayerContext {
         this.id = id;
 
         this.ready = true;
+        this.isAlive = true;
         this.name = name;
         this.vip = vip;
 
@@ -46,7 +48,7 @@ public class PlayerContext {
         Random r = new Random();
         this.stats = new ROPlayerStats(200, (double)r.nextInt(GlobalSettings.MAP_SIZE_X - GlobalSettings.PLAYER_SIZE_X),
                                                 (double)r.nextInt(GlobalSettings.MAP_SIZE_Y - GlobalSettings.PLAYER_SIZE_Y),
-                                    100, true);
+                                    200, true);
         this.moveAction = new ActionMove(-1, null, this, 0, 0,false);
 
         this.targetX = this.stats.x;

@@ -140,10 +140,13 @@ public class Room implements Runnable {
                 else if(messageData.getIntegerParameter("inputId").getValue() == 1){
                     if(!player.stats.hasControl) return;
                     if(player.moveAction.isActive) player.moveAction.isActive = false;
-                    player.targetX = messageData.getDoubleParameter("absMouseCoordX").getValue();
-                    player.targetY = messageData.getDoubleParameter("absMouseCoordY").getValue();
                     player.actions.add(new ActionDash(hash, this, player.targetX, player.targetY));
-                    GlobalSettings.print("Player "+ player.name +" target: X = " + player.targetX + "; target Y = " + player.targetY);
+                    GlobalSettings.print("Player " +
+                            player.name +
+                            " target: X = " +
+                            messageData.getDoubleParameter("absMouseCoordX").getValue() +
+                            "; target Y = " +
+                            messageData.getDoubleParameter("absMouseCoordY").getValue());
                 }
             }
         }
@@ -216,6 +219,11 @@ public class Room implements Runnable {
 
                     //==================================================================================================
                     //check if dead
+                    if(entry.getValue().stats.health <= 0){
+                        entry.getValue().isAlive = false;
+                        entry.getValue().stats.x = -1;
+                        entry.getValue().stats.y = -1;
+                    }
                     //make parameters and movement validation
                     //==================================================================================================
                     ByteBuffer messageBuf = protocolEncoder.encodeMessage(MessageBuilder.buildMoveUpdateInd(

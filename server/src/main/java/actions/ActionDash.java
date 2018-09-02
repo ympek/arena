@@ -2,7 +2,10 @@ package actions;
 
 import logic.GlobalSettings;
 import logic.Room;
+import playerData.PlayerContext;
 import playerData.ROPlayerStats;
+
+import java.util.Map;
 
 /**
  * Created by Arkadiusz Nowak on 12.08.2018.
@@ -41,8 +44,8 @@ public class ActionDash extends Action {
 
         if(time == 10) {
             //1.
-            targetNormalX =- player.x;
-            targetNormalY =- player.y;
+            targetNormalX -= player.x;
+            targetNormalY -= player.y;
 
             //2.
             double vectLen = Math.sqrt(targetNormalX * targetNormalX + targetNormalY * targetNormalY);
@@ -52,11 +55,20 @@ public class ActionDash extends Action {
             targetNormalY = (targetNormalY / vectLen);
         }
         //4.
-        double vectX = targetNormalX * (3*player.speed/ GlobalSettings.MAX_FPS);
-        double vectY = targetNormalY * (3*player.speed/ GlobalSettings.MAX_FPS);
+        double vectX = targetNormalX * (4*player.speed/ GlobalSettings.MAX_FPS);
+        double vectY = targetNormalY * (4*player.speed/ GlobalSettings.MAX_FPS);
 
         //5.
         room.players.get(playerHash).paramEffects.add(new EffectMove(room.players.get(playerHash), vectX, vectY));
+
+        //collision check for damage purpose
+
+        for(Map.Entry<Integer, ROPlayerStats> playerStatsEntry : room.playersActionStats.entrySet()) {
+            if (playerStatsEntry.getKey() == playerHash) continue;
+            double distance = Math.sqrt((player.x + vectX - playerStatsEntry.getValue().x) * (player.x + vectX - playerStatsEntry.getValue().x) +
+                    (player.y + vectY - playerStatsEntry.getValue().y) * (player.y + vectY - playerStatsEntry.getValue().y));
+            if (distance <= 23) room.players.get(playerStatsEntry.getKey()).paramEffects.add(new EffectDamage(room.players.get(playerStatsEntry.getKey()), 50));
+        }
 
         player.hasControl = false;
 
@@ -64,6 +76,7 @@ public class ActionDash extends Action {
             isActive = false;
             isAlive = false;
             player.hasControl = true;
+            room.players.get(playerHash).moveAction.setNewMove();
         }
     }
 }
