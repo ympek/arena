@@ -59,4 +59,10 @@ public class ActionMove extends Action {
         //5.
         player.paramEffects.add(new EffectMove(player, vectX, vectY));
     }
+
+    public void setNewMove(){
+        targetX = player.targetX;
+        targetY = player.targetY;
+        this.isActive = true;
+    }
 }
