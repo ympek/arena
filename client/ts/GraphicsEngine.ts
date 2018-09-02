@@ -286,7 +286,8 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
         posY: number,
         targetPosX: number,
         targetPosY: number,
-        speed: number 
+        speed: number,
+        health: number
     ) {
         // first we need to find proper player idx.
         let i : number = -1;
@@ -305,6 +306,7 @@ export default function GraphicsEngine(canvasToAttachItselfTo : HTMLCanvasElemen
             heroes[i].posY = posY;
             heroes[i].targetPosX = targetPosX;
             heroes[i].targetPosY = targetPosY;
+            heroes[i].health = health;
             // speed??!!?
         }
 

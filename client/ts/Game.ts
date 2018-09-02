@@ -221,7 +221,8 @@ function registerSocketListener() {
           msg.absPositionCoordY,
           msg.absTargetCoordX,
           msg.absTargetCoordY,
-          msg.objectSpeed
+          msg.objectSpeed,
+          msg.health
         );
         break;
       case "playerLogoutInd":
