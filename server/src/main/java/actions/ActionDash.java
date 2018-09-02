@@ -15,12 +15,14 @@ public class ActionDash extends Action {
     private double targetNormalX;
     private double targetNormalY;
     private int time;
+    private boolean dmged;
 
     public ActionDash(int hash, Room room, double targetX, double targetY){
         super(hash, room);
         this.targetNormalX = targetX;
         this.targetNormalY = targetY;
         this.isActive = true;
+        this.dmged = false;
 
         time = 10;
     }
@@ -67,7 +69,10 @@ public class ActionDash extends Action {
             if (playerStatsEntry.getKey() == playerHash) continue;
             double distance = Math.sqrt((player.x + vectX - playerStatsEntry.getValue().x) * (player.x + vectX - playerStatsEntry.getValue().x) +
                     (player.y + vectY - playerStatsEntry.getValue().y) * (player.y + vectY - playerStatsEntry.getValue().y));
-            if (distance <= 23) room.players.get(playerStatsEntry.getKey()).paramEffects.add(new EffectDamage(room.players.get(playerStatsEntry.getKey()), 50));
+            if (distance <= 23 && !dmged) {
+                room.players.get(playerStatsEntry.getKey()).paramEffects.add(new EffectDamage(room.players.get(playerStatsEntry.getKey()), 50));
+                dmged = true;
+            }
         }
 
         player.hasControl = false;

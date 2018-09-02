@@ -227,7 +227,7 @@ public class Room implements Runnable {
                         entry.getValue().stats.y = -1;
                         entry.getValue().respawnTime = System.currentTimeMillis() + 30*1000;
                     }
-                    if(!entry.getValue().isAlive && entry.getValue().respawnTime >= System.currentTimeMillis()){
+                    else if(!entry.getValue().isAlive && entry.getValue().respawnTime >= System.currentTimeMillis()){
                         entry.getValue().respawn();
                     }
                     //make parameters and movement validation

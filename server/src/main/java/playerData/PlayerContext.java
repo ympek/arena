@@ -84,6 +84,9 @@ public class PlayerContext {
 
         this.prevPosX = this.stats.x;
         this.prevPosY = this.stats.y;
+
+        this.moveAction.targetX = this.stats.x;
+        this.moveAction.targetY = this.stats.y;
     }
 }
 
